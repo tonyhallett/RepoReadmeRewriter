@@ -10,7 +10,7 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <Authors>TonyHUk</Authors>
     <Description>Build target for creating a nuget readme from a readme with relative links hosted on GitHub or GitLab.</Description>
     <Copyright>Copyright © 2025 Tony Hallett</Copyright>
@@ -24,7 +24,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PublishRepositoryUrl>True</PublishRepositoryUrl>
     <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
-    <SuppressDependenciesWhenPacking>True</SuppressDependenciesWhenPacking>
+	<DevelopmentDependency>true</DevelopmentDependency>
+	<SuppressDependenciesWhenPacking>True</SuppressDependenciesWhenPacking>
     <!-- ensures ReferenceCopyLocalPaths used in the Target-->
      <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <TargetsForTfmSpecificBuildOutput>
