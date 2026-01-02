@@ -1,8 +1,10 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Text;
 
 namespace NugetRepoReadme
 {
+    [ExcludeFromCodeCoverage]
     public static class DebugFileWriter
     {
         private static readonly StringBuilder s_contents = new StringBuilder();

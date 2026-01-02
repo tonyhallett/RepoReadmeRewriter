@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197
+# Visual Studio Version 18
+VisualStudioVersion = 18.1.11312.151 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NugetRepoReadme", "NugetRepoReadme\NugetRepoReadme.csproj", "{09114F3E-3844-4BE8-956A-9D05EE5379D7}"
 EndProject
@@ -23,6 +23,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSBuildTaskTestHelpers", "MSBuildTaskTestHelpers\MSBuildTaskTestHelpers.csproj", "{6016AAB6-2440-47B4-87B5-8A95B9D79772}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NugetTests", "NugetTests\NugetTests.csproj", "{6B81FA69-71DB-4EA8-BA8D-49B51BF39A58}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReadmeRewriterCLI", "ReadmeRewriterCLI\ReadmeRewriterCLI.csproj", "{D4180573-81A7-4895-A3B5-08FF86E84867}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +63,12 @@ Global
 		{6B81FA69-71DB-4EA8-BA8D-49B51BF39A58}.IntegrationTests|Any CPU.Build.0 = Debug|Any CPU
 		{6B81FA69-71DB-4EA8-BA8D-49B51BF39A58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B81FA69-71DB-4EA8-BA8D-49B51BF39A58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4180573-81A7-4895-A3B5-08FF86E84867}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4180573-81A7-4895-A3B5-08FF86E84867}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4180573-81A7-4895-A3B5-08FF86E84867}.IntegrationTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4180573-81A7-4895-A3B5-08FF86E84867}.IntegrationTests|Any CPU.Build.0 = Debug|Any CPU
+		{D4180573-81A7-4895-A3B5-08FF86E84867}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4180573-81A7-4895-A3B5-08FF86E84867}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

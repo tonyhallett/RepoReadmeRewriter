@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Build.Framework;
-using NugetRepoReadme.IOWrapper;
 using NugetRepoReadme.MSBuild;
 using NugetRepoReadme.MSBuildHelpers;
 using NugetRepoReadme.Processing;
 using NugetRepoReadme.RemoveReplace.Settings;
-using NugetRepoReadme.Repo;
-using NugetRepoReadme.Rewriter;
+using NugetRepoReadme.Runner;
 using InputOutputHelper = NugetRepoReadme.IOWrapper.IOHelper;
 
 namespace NugetRepoReadme
@@ -55,13 +54,7 @@ namespace NugetRepoReadme
 
         public ITaskItem[]? RemoveReplaceWordsItems { get; set; }
 
-        internal IIOHelper IOHelper { get; set; } = InputOutputHelper.Instance;
-
         internal IMessageProvider MessageProvider { get; set; } = MSBuild.MessageProvider.Instance;
-
-        internal IReadmeRewriter ReadmeRewriter { get; set; } = new ReadmeRewriter();
-
-        internal IRepoReadmeFilePathsProvider RepoReadmeFilePathsProvider { get; set; } = new RepoReadmeFilePathsProvider();
 
         internal IRemoveReplaceSettingsProvider RemoveReplaceSettingsProvider { get; set; } = new RemoveReplaceSettingsProvider(
             new MSBuildMetadataProvider(),
@@ -70,43 +63,12 @@ namespace NugetRepoReadme
             new RemoveReplaceWordsProvider(InputOutputHelper.Instance, MSBuild.MessageProvider.Instance),
             MSBuild.MessageProvider.Instance);
 
+        internal IReadmeRewriterRunner Runner { get; set; } = new ReadmeRewriterRunner();
+
         public override bool Execute()
         {
             LaunchDebuggerIfRequired();
-            string readmePath = IOHelper.CombinePaths(ProjectDirectoryPath, ReadmeRelativePath ?? "readme.md");
-            if (!IOHelper.FileExists(readmePath))
-            {
-                Log.LogError(MessageProvider.ReadmeFileDoesNotExist(readmePath));
-            }
-            else
-            {
-                RepoReadmeFilePaths? repoReadmeFilePaths = RepoReadmeFilePathsProvider.Provide(readmePath);
-                if (repoReadmeFilePaths == null)
-                {
-                    Log.LogError(MessageProvider.CannotFindGitRepository());
-                }
-                else
-                {
-                    TryRewrite(IOHelper.ReadAllText(readmePath), repoReadmeFilePaths);
-                }
-            }
 
-            DebugFileWriter.WriteToFile();
-            return !Log.HasLoggedErrors;
-        }
-
-        private void LaunchDebuggerIfRequired()
-        {
-            if (Environment.GetEnvironmentVariable("DebugReadmeRewriter") != "1" || Debugger.IsAttached)
-            {
-                return;
-            }
-
-            _ = Debugger.Launch();
-        }
-
-        private void TryRewrite(string readmeContents, RepoReadmeFilePaths repoReadmeFilePaths)
-        {
             IRemoveReplaceSettingsResult removeReplaceSettingsResult = RemoveReplaceSettingsProvider.Provide(
                 RemoveReplaceItems,
                 RemoveReplaceWordsItems,
@@ -121,59 +83,43 @@ namespace NugetRepoReadme
             }
             else
             {
-                Rewrite(readmeContents, repoReadmeFilePaths, removeReplaceSettingsResult.Settings);
+                ReadmeRewriterRunnerResult result = Runner.Run(
+                    ProjectDirectoryPath,
+                    ReadmeRelativePath,
+                    GetRepositoryUrl(),
+                    GetRef(),
+                    GetRewriteTagsOptions(),
+                    removeReplaceSettingsResult.Settings);
+
+                foreach (string error in result.Errors)
+                {
+                    Log.LogError(error);
+                }
+
+                if (result.Success)
+                {
+                    OutputReadme = result.OutputReadme!;
+                }
             }
+
+            DebugFileWriter.WriteToFile();
+            return !Log.HasLoggedErrors;
+        }
+
+        [ExcludeFromCodeCoverage]
+        private void LaunchDebuggerIfRequired()
+        {
+            if (Environment.GetEnvironmentVariable("DebugReadmeRewriter") != "1" || Debugger.IsAttached)
+            {
+                return;
+            }
+
+            _ = Debugger.Launch();
         }
 
         private string? GetRepositoryUrl() => ReadmeRepositoryUrl ?? RepositoryUrl;
 
         private string GetRef() => RepositoryRef ?? RepositoryCommit ?? RepositoryBranch ?? "master";
-
-        private void Rewrite(
-            string readmeContents,
-            RepoReadmeFilePaths repoReadmeFilePaths,
-            RemoveReplaceSettings? removeReplaceSettings)
-        {
-            string? repositoryUrl = GetRepositoryUrl();
-            var readmeRelativeFileExists = new ReadmeRelativeFileExists(
-                repoReadmeFilePaths.RepoDirectoryPath,
-                repoReadmeFilePaths.ReadmeDirectoryPath);
-            ReadmeRewriterResult readmeRewriterResult = ReadmeRewriter.Rewrite(
-                GetRewriteTagsOptions(),
-                readmeContents,
-                repoReadmeFilePaths.RepoRelativeReadmeFilePath,
-                repositoryUrl,
-                GetRef(),
-                removeReplaceSettings,
-                readmeRelativeFileExists);
-
-            foreach (string unsupportedImageDomain in readmeRewriterResult.UnsupportedImageDomains)
-            {
-                Log.LogError(MessageProvider.UnsupportedImageDomain(unsupportedImageDomain));
-            }
-
-            foreach (string missingReadmeAsset in readmeRewriterResult.MissingReadmeAssets)
-            {
-                Log.LogError(MessageProvider.MissingReadmeAsset(missingReadmeAsset));
-            }
-
-            if (readmeRewriterResult.HasUnsupportedHTML)
-            {
-                Log.LogError(MessageProvider.ReadmeHasUnsupportedHTML());
-            }
-
-            if (readmeRewriterResult.UnsupportedRepo)
-            {
-                Log.LogError(MessageProvider.CouldNotParseRepositoryUrl(repositoryUrl));
-            }
-
-            if (Log.HasLoggedErrors)
-            {
-                return;
-            }
-
-            OutputReadme = readmeRewriterResult.RewrittenReadme!;
-        }
 
         private RewriteTagsOptions GetRewriteTagsOptions()
         {

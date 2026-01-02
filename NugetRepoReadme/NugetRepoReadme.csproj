@@ -39,15 +39,15 @@
   </PropertyGroup>
   <ItemGroup>
       <!-- forcing the .nupkg to be rebuilt whenever targets changed -->
-      <EmbeddedResource Include="buildMultiTargeting\NugetRepoReadme.targets" Pack="true" PackagePath="buildMultiTargeting\"/>
-      <EmbeddedResource Include="build\common\NugetRepoReadme.targets" Pack="true" PackagePath="build\common"/>
-      <EmbeddedResource Include="build\NugetRepoReadme.targets" Pack="true" PackagePath="build"/>
+      <EmbeddedResource Include="buildMultiTargeting\NugetRepoReadme.targets" Pack="true" PackagePath="buildMultiTargeting\" />
+      <EmbeddedResource Include="build\common\NugetRepoReadme.targets" Pack="true" PackagePath="build\common" />
+      <EmbeddedResource Include="build\NugetRepoReadme.targets" Pack="true" PackagePath="build" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Debug'">
     <None Include="$(OutputPath)\*.pdb" Pack="true" PackagePath="tasks\$(TargetFramework)" />
   </ItemGroup>
   <ItemGroup>
-      <None Include="..\README.md" Pack="true" PackagePath="/"/>
+      <None Include="..\README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.3.0" PrivateAssets="all" />
@@ -67,6 +67,9 @@
     </AssemblyAttribute>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
         <_Parameter1>DynamicProxyGenAssembly2</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+        <_Parameter1>ReadmeRewriterCLI</_Parameter1>
     </AssemblyAttribute>
    </ItemGroup>
 

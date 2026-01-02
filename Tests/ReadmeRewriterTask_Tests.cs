@@ -2,12 +2,9 @@
 using Moq;
 using MSBuildTaskTestHelpers;
 using NugetRepoReadme;
-using NugetRepoReadme.IOWrapper;
-using NugetRepoReadme.MSBuild;
 using NugetRepoReadme.Processing;
 using NugetRepoReadme.RemoveReplace.Settings;
-using NugetRepoReadme.Repo;
-using NugetRepoReadme.Rewriter;
+using NugetRepoReadme.Runner;
 using Tests.Utils;
 
 namespace Tests
@@ -16,13 +13,15 @@ namespace Tests
     {
         private const string RepositoryUrl = "repositoryurl";
         private const string ProjectDirectoryPath = "projectdir";
+        private const string ReadmeRelativePath = "readmerelativepath";
+
         private const string RemoveCommentIdentifiers = "removeCommentIdentifiers";
         private readonly ITaskItem[] _removeReplaceTaskItems = [new Mock<ITaskItem>().Object];
-        private DummyIOHelper _ioHelper = new();
+        private readonly ITaskItem[] _removeReplaceWordsTaskItems = [new Mock<ITaskItem>().Object];
         private Mock<IRemoveReplaceSettingsProvider> _mockRemoveReplaceSettingsProvider = new();
-        private Mock<IReadmeRewriter> _mockReadmeRewriter = new();
+
         private DummyLogBuildEngine _dummyLogBuildEngine = new();
-        private DummyRepoRelativeReadmePath _dummyDummyRepoRelativeReadmePath = new();
+        private Mock<IReadmeRewriterRunner> _mockRunner;
         private ReadmeRewriterTask _readmeRewriterTask = new();
         private TestRemoveReplaceSettingsResult _removeReplaceSettingsResult = new();
 
@@ -30,269 +29,141 @@ namespace Tests
         {
             public IReadOnlyList<string> Errors { get; set; } = [];
 
-            public RemoveReplaceSettings? Settings { get; set; }
-        }
-
-        private sealed class DummyIOHelper : IIOHelper
-        {
-            public const string ReadmeText = "readme";
-
-            public bool DoesFileExist { get; set; }
-
-            public string CombinePaths(string path1, string path2) => $"{path1};{path2}";
-
-            public string? FileExistsPath { get; private set; }
-
-            public bool FileExists(string filePath)
-            {
-                FileExistsPath = filePath;
-                return DoesFileExist;
-            }
-
-            public string ReadAllText(string readmePath) => ReadmeText;
-
-            public string[] ReadAllLines(string filePath) => throw new NotImplementedException();
-        }
-
-        private sealed class DummyRepoRelativeReadmePath : IRepoReadmeFilePathsProvider
-        {
-            public RepoReadmeFilePaths? Provide(string readmePath) => new(
-                    "repoDirectoryPath",
-                    "readmeDirectoryPath",
-                    $"relative-{readmePath}");
+            public RemoveReplaceSettings? Settings { get; } = new RemoveReplaceSettings(null, [], []);
         }
 
         [SetUp]
         public void Setup()
         {
-            _ioHelper = new DummyIOHelper();
             _mockRemoveReplaceSettingsProvider = new Mock<IRemoveReplaceSettingsProvider>();
-            _mockReadmeRewriter = new Mock<IReadmeRewriter>();
             _dummyLogBuildEngine = new DummyLogBuildEngine();
-            _dummyDummyRepoRelativeReadmePath = new DummyRepoRelativeReadmePath();
+            _mockRunner = new Mock<IReadmeRewriterRunner>();
             _readmeRewriterTask = new ReadmeRewriterTask
             {
                 BuildEngine = _dummyLogBuildEngine,
-                IOHelper = _ioHelper,
-                ReadmeRewriter = _mockReadmeRewriter.Object,
                 RemoveReplaceSettingsProvider = _mockRemoveReplaceSettingsProvider.Object,
                 MessageProvider = new ConcatenatingArgumentsMessageProvider(),
                 RepositoryUrl = RepositoryUrl,
                 ProjectDirectoryPath = ProjectDirectoryPath,
-                RepoReadmeFilePathsProvider = _dummyDummyRepoRelativeReadmePath,
+                ReadmeRelativePath = ReadmeRelativePath,
+                Runner = _mockRunner.Object,
             };
             _removeReplaceSettingsResult = new TestRemoveReplaceSettingsResult();
-            _ = _mockRemoveReplaceSettingsProvider.Setup(removeReplaceSettingsProvider => removeReplaceSettingsProvider.Provide(_removeReplaceTaskItems, null, RemoveCommentIdentifiers))
+            _ = _mockRemoveReplaceSettingsProvider.Setup(removeReplaceSettingsProvider => removeReplaceSettingsProvider.Provide(_removeReplaceTaskItems, _removeReplaceWordsTaskItems, RemoveCommentIdentifiers))
                 .Returns(_removeReplaceSettingsResult);
             _readmeRewriterTask.RemoveReplaceItems = _removeReplaceTaskItems;
+            _readmeRewriterTask.RemoveReplaceWordsItems = _removeReplaceWordsTaskItems;
             _readmeRewriterTask.RemoveCommentIdentifiers = RemoveCommentIdentifiers;
         }
 
         [Test]
-        public void Should_Look_For_The_Readme_Relative_To_The_ProjectDirectoryPath()
+        public void Should_Log_Errors_From_RemoveReplaceSettingsProvider()
         {
-            _readmeRewriterTask.ReadmeRelativePath = "relativeReadme.md";
+            _ = _mockRemoveReplaceSettingsProvider.Setup(removeReplaceSettingsProvider => removeReplaceSettingsProvider.Provide(
+                It.IsAny<ITaskItem[]?>(), It.IsAny<ITaskItem[]?>(), It.IsAny<string?>()))
+                .Returns(new TestRemoveReplaceSettingsResult
+                {
+                    Errors = ["error1"],
+                });
+            bool executeResult = _readmeRewriterTask.Execute();
+
+            Assert.That(_dummyLogBuildEngine.SingleErrorMessage(), Is.EqualTo("error1"));
+        }
+
+        [Test]
+        public void Should_Invoke_The_Runner_With_The_RemoveReplaceSettings_From_The_Provider()
+        {
+            _mockRunner.Setup(
+                runner => runner.Run(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<RewriteTagsOptions>(),
+                _removeReplaceSettingsResult.Settings)).Returns(new ReadmeRewriterRunnerResult()).Verifiable();
 
             _ = _readmeRewriterTask.Execute();
 
-            Assert.That(_ioHelper.FileExistsPath, Is.EqualTo("projectdir;relativeReadme.md"));
+            _mockRunner.Verify();
         }
 
         [Test]
-        public void Should_Default_The_ReadmeRelative_Path_To_Readme_In_Root()
+        public void Should_Invoke_The_Runner_With_Task_Properties_ProjectDirectoryPath_ReadmeRelativePath()
         {
+            _mockRunner.Setup(
+                runner => runner.Run(
+                ProjectDirectoryPath,
+                ReadmeRelativePath,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<RewriteTagsOptions>(),
+                It.IsAny<RemoveReplaceSettings>())).Returns(new ReadmeRewriterRunnerResult()).Verifiable();
+
             _ = _readmeRewriterTask.Execute();
 
-            Assert.That(_ioHelper.FileExistsPath, Is.EqualTo("projectdir;readme.md"));
+            _mockRunner.Verify();
         }
 
-        [TestCase(null, "readme.md")]
-        [TestCase("relativeReadme.md", "relativeReadme.md")]
-        public void Should_Pass_The_ReadmeRelativeFileExists_To_The_ReadmeRewriter(
-            string? readmeRelativePath,
-            string expectedReadmeRelativePath)
+        [TestCase(null)]
+        [TestCase("readmeRepositoryUrl")]
+        public void Should_Invoke_The_Runner_With_One_Of_Task_Properties_ReadmeRepositoryUrl_Or_RepositoryUrl(string? readmeRepositoryUrl)
         {
-            string expectedRepoReadmeRelativePath = GetExpectedRepoReadmeRelativePath(expectedReadmeRelativePath);
-            SetupReadMeRewriter(
-                new ReadmeRewriterResult(null, [], [], false, false),
-                RewriteTagsOptions.None,
-                readmeRelativePath,
-                expectedRepoReadmeRelativePath);
+            _readmeRewriterTask.ReadmeRepositoryUrl = readmeRepositoryUrl;
 
-            _ = ExecuteReadmeExists();
-
-            _mockReadmeRewriter.Verify(readmeRewriter => readmeRewriter.Rewrite(
+            _ = _mockRunner.Setup(
+                runner => runner.Run(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                readmeRepositoryUrl ?? RepositoryUrl,
+                It.IsAny<string>(),
                 It.IsAny<RewriteTagsOptions>(),
-                DummyIOHelper.ReadmeText,
-                expectedRepoReadmeRelativePath,
-                RepositoryUrl,
+                It.IsAny<RemoveReplaceSettings>())).Returns(new ReadmeRewriterRunnerResult());
+
+            _ = _readmeRewriterTask.Execute();
+
+            _mockRunner.Verify();
+
+        }
+
+        [Test]
+        public void Should_Prefer_RepositoryRef_For_Ref()
+    => RefTest("repositoryRef", "repositoryCommit", "repositoryBranch", "repositoryRef");
+
+        [Test]
+        public void Should_Prefer_RepositoryCommit_For_Ref_If_RepositoryRef_Null()
+            => RefTest(null, "repositoryCommit", "repositoryBranch", "repositoryCommit");
+
+        [Test]
+        public void Should_Prefer_RepositoryBranch_For_Ref_If_RepositoryRef_And_RepositoryCommit_Null()
+            => RefTest(null, null, "repositoryBranch", "repositoryBranch");
+
+        [Test]
+        public void Should_Default_Ref_To_Master_If_RepositoryRef_RepositoryCommit_And_RepositoryBranch_Null()
+            => RefTest(null, null, null, "master");
+
+        private void RefTest(string? repositoryRef, string? repositoryCommit, string? repositoryBranch, string expectedRef)
+        {
+            _readmeRewriterTask.RepositoryRef = repositoryRef;
+            _readmeRewriterTask.RepositoryCommit = repositoryCommit;
+            _readmeRewriterTask.RepositoryBranch = repositoryBranch;
+
+            _ = _mockRunner.Setup(
+                runner => runner.Run(
                 It.IsAny<string>(),
-                _removeReplaceSettingsResult.Settings,
-                It.Is<ReadmeRelativeFileExists>(readmeRelativeFileExists => readmeRelativeFileExists.RepoDirectoryPath == "repoDirectoryPath" && readmeRelativeFileExists.ReadmeDirectoryPath == "readmeDirectoryPath")));
-        }
-
-        [Test]
-        public void Should_Log_Error_If_Readme_Does_Not_Exist()
-        {
-            bool result = _readmeRewriterTask.Execute();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result, Is.EqualTo(false));
-                Assert.That(
-                    _dummyLogBuildEngine.SingleErrorMessage(),
-                    Is.EqualTo("projectdir;readme.md"));
-            });
-        }
-
-        private bool ExecuteReadmeExists()
-        {
-            _ioHelper.DoesFileExist = true;
-            return _readmeRewriterTask.Execute();
-        }
-
-        [TestCase(true)]
-        [TestCase(false)]
-        public void Should_ReadmeRewriter_Rewrite_The_Readme_File_When_Exists(bool withSettings)
-        {
-            if (withSettings)
-            {
-                _removeReplaceSettingsResult.Settings = new RemoveReplaceSettings(null, [], []);
-            }
-
-            SetupReadMeRewriter(new ReadmeRewriterResult(null, [], [], false, false));
-            _ = ExecuteReadmeExists();
-
-            _mockReadmeRewriter.VerifyAll();
-        }
-
-        private void SetupReadMeRewriter(
-            ReadmeRewriterResult readmeRewriterResult,
-            RewriteTagsOptions rewriteTagsOptions = RewriteTagsOptions.None,
-            string? readmeRelativePath = null,
-            string? expectedRepoReadmeRelativePath = null,
-            string? expectedRepositoryUrl = null)
-        {
-            _readmeRewriterTask.ReadmeRelativePath = readmeRelativePath;
-            _ = _mockReadmeRewriter.Setup(readmeRewriter => readmeRewriter.Rewrite(
-                rewriteTagsOptions,
-                DummyIOHelper.ReadmeText,
-                expectedRepoReadmeRelativePath ?? GetExpectedRepoReadmeRelativePath("readme.md"),
-                expectedRepositoryUrl ?? RepositoryUrl,
                 It.IsAny<string>(),
-                _removeReplaceSettingsResult.Settings,
-                It.IsAny<IReadmeRelativeFileExists>()))
-            .Returns(readmeRewriterResult);
-        }
-
-        private static string GetExpectedRepoReadmeRelativePath(string readmeRelativePath) => $"relative-projectdir;{readmeRelativePath}";
-
-        [Test]
-        public void Should_Log_Error_When_RepositoryUrl_Cannot_Be_Parsed()
-        {
-            SetupReadMeRewriter(new ReadmeRewriterResult(null, [], [], false, true));
-            bool result = ExecuteReadmeExists();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result, Is.EqualTo(false));
-                Assert.That(
-                    _dummyLogBuildEngine.SingleErrorMessage(),
-                    Is.EqualTo(RepositoryUrl));
-            });
-        }
-
-        [Test]
-        public void Should_Log_Error_For_Every_Unsupported_Image_Domain()
-        {
-            ReadmeRewriterResult readmeRewriterResult = new(null, ["unsupported1", "unsupported2"], [], false, false);
-            _ = _mockReadmeRewriter.Setup(readmeRewriter => readmeRewriter.Rewrite(
+                It.IsAny<string>(),
+                expectedRef,
                 It.IsAny<RewriteTagsOptions>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                RepositoryUrl,
-                It.IsAny<string>(),
-                It.IsAny<RemoveReplaceSettings>(),
-                It.IsAny<IReadmeRelativeFileExists>())).Returns(readmeRewriterResult);
+                It.IsAny<RemoveReplaceSettings>())).Returns(new ReadmeRewriterRunnerResult());
 
-            bool result = ExecuteReadmeExists();
+            _ = _readmeRewriterTask.Execute();
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(result, Is.EqualTo(false));
-                foreach ((string unsupportedImageDomain, string? error) in readmeRewriterResult.UnsupportedImageDomains.Zip(_dummyLogBuildEngine.ErrorMessages()))
-                {
-                    Assert.That(error, Is.EqualTo(unsupportedImageDomain));
-                }
-            });
-        }
-
-        [Test]
-        public void Should_Log_Error_For_Every_Missing_Readme_Asset()
-        {
-            string[] missingReadmeAssets = ["/missing1", "/missing2"];
-            SetupReadMeRewriter(new ReadmeRewriterResult(null, [], missingReadmeAssets, false, false));
-
-            bool result = ExecuteReadmeExists();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result, Is.EqualTo(false));
-                foreach ((string missingReadme, string? error) in missingReadmeAssets.Zip(_dummyLogBuildEngine.ErrorMessages()))
-                {
-                    Assert.That(error, Is.EqualTo(missingReadme));
-                }
-            });
-        }
-
-        [Test]
-        public void Should_Log_Error_For_Unsupported_HTML()
-        {
-            ReadmeRewriterResult readmeRewriterResult = new(null, [], [], true, false);
-            _ = _mockReadmeRewriter.Setup(readmeRewriter => readmeRewriter.Rewrite(
-                It.IsAny<RewriteTagsOptions>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                RepositoryUrl,
-                It.IsAny<string>(),
-                It.IsAny<RemoveReplaceSettings>(),
-                It.IsAny<IReadmeRelativeFileExists>())).Returns(readmeRewriterResult);
-
-            bool result = ExecuteReadmeExists();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result, Is.EqualTo(false));
-                Assert.That(_dummyLogBuildEngine.SingleErrorMessage, Is.EqualTo(nameof(IMessageProvider.ReadmeHasUnsupportedHTML)));
-            });
-        }
-
-        [Test]
-        public void Should_Write_Rewritten_Readme_To_OutputReadme()
-        {
-            _removeReplaceSettingsResult.Settings = new RemoveReplaceSettings(null, [], []);
-            ReadmeRewriterResult readmeRewriterResult = new("rewrittenReadme", [], [], false, false);
-            _ = _mockReadmeRewriter.Setup(readmeRewriter => readmeRewriter.Rewrite(
-                It.IsAny<RewriteTagsOptions>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                RepositoryUrl,
-                It.IsAny<string>(),
-                _removeReplaceSettingsResult.Settings,
-                It.IsAny<IReadmeRelativeFileExists>())).Returns(readmeRewriterResult);
-
-            bool result = ExecuteReadmeExists();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result, Is.EqualTo(true));
-                Assert.That(readmeRewriterResult.RewrittenReadme, Is.EqualTo(_readmeRewriterTask.OutputReadme));
-            });
+            _mockRunner.Verify();
         }
 
         /*
-            Not advertising the use of both RewriteTagsOptions.  Needs more consideration.
-        */
+    Not advertising the use of both RewriteTagsOptions.  Needs more consideration.
+*/
 
         [TestCase(RewriteTagsOptions.RewriteBrTags)]
         [TestCase(RewriteTagsOptions.RewriteAll)]
@@ -354,73 +225,65 @@ namespace Tests
             RewriteTagsOptions_Test(RewriteTagsOptions.ErrorOnHtml | RewriteTagsOptions.ExtractDetailsContentWithoutSummary);
         }
 
-        // Set properties of _readmeRewriterTask beforehand
         private void RewriteTagsOptions_Test(RewriteTagsOptions expectedRewriteTagsOptions)
         {
-            SetupReadMeRewriter(new ReadmeRewriterResult(null, [], [], false, false), expectedRewriteTagsOptions);
-            _ = ExecuteReadmeExists();
+            _ = _mockRunner.Setup(
+                runner => runner.Run(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                expectedRewriteTagsOptions,
+                It.IsAny<RemoveReplaceSettings>())).Returns(new ReadmeRewriterRunnerResult());
+
+            _ = _readmeRewriterTask.Execute();
+
+            _mockRunner.Verify();
         }
 
         [Test]
-        public void Should_Log_Errors_From_RemoveReplaceSettingsProvider()
+        public void Should_Write_Rewritten_Readme_To_OutputReadme_When_Runner_Success()
         {
-            _ = _mockRemoveReplaceSettingsProvider.Setup(removeReplaceSettingsProvider => removeReplaceSettingsProvider.Provide(It.IsAny<ITaskItem[]?>(), It.IsAny<ITaskItem[]?>(), It.IsAny<string?>()))
-                .Returns(new TestRemoveReplaceSettingsResult
-                {
-                    Errors = ["error1"],
-                });
-            _ = ExecuteReadmeExists();
-
-            Assert.That(_dummyLogBuildEngine.SingleErrorMessage(), Is.EqualTo("error1"));
-        }
-
-        [Test]
-        public void Should_Use_ReadmeRepositoryUrl_If_Provided()
-        {
-            _readmeRewriterTask.ReadmeRepositoryUrl = "readmeRepositoryUrl";
-
-            SetupReadMeRewriter(
-                new ReadmeRewriterResult(null, [], [], false, false),
-                RewriteTagsOptions.None,
-                null,
-                null,
-                _readmeRewriterTask.ReadmeRepositoryUrl);
-            _ = ExecuteReadmeExists();
-        }
-
-        [Test]
-        public void Should_Prefer_RepositoryRef_For_Ref()
-            => RefTest("repositoryRef", "repositoryCommit", "repositoryBranch", "repositoryRef");
-
-        [Test]
-        public void Should_Prefer_RepositoryCommit_For_Ref_If_RepositoryRef_Null()
-            => RefTest(null, "repositoryCommit", "repositoryBranch", "repositoryCommit");
-
-        [Test]
-        public void Should_Prefer_RepositoryBranch_For_Ref_If_RepositoryRef_And_RepositoryCommit_Null()
-            => RefTest(null, null, "repositoryBranch", "repositoryBranch");
-
-        [Test]
-        public void Should_Default_Ref_To_Master_If_RepositoryRef_RepositoryCommit_And_RepositoryBranch_Null()
-            => RefTest(null, null, null, "master");
-
-        private void RefTest(string? repositoryRef, string? repositoryCommit, string? repositoryBranch, string expectedRef)
-        {
-            _readmeRewriterTask.RepositoryRef = repositoryRef;
-            _readmeRewriterTask.RepositoryCommit = repositoryCommit;
-            _readmeRewriterTask.RepositoryBranch = repositoryBranch;
-
-            _ = _mockReadmeRewriter.Setup(readmeRewriter => readmeRewriter.Rewrite(
+            _ = _mockRunner.Setup(
+                runner => runner.Run(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
                 It.IsAny<RewriteTagsOptions>(),
-                DummyIOHelper.ReadmeText,
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                expectedRef,
-                It.IsAny<RemoveReplaceSettings?>(),
-                It.IsAny<IReadmeRelativeFileExists>()))
-            .Returns(new ReadmeRewriterResult(null, [], [], false, false));
+                _removeReplaceSettingsResult.Settings)).Returns(new ReadmeRewriterRunnerResult { OutputReadme = "output" });
 
-            _ = ExecuteReadmeExists();
+            bool taskResult = _readmeRewriterTask.Execute();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(taskResult, Is.EqualTo(true));
+                Assert.That(_readmeRewriterTask.OutputReadme, Is.EqualTo("output"));
+            });
+        }
+
+        [Test]
+        public void Should_Log_All_Errors_From_Runner()
+        {
+            var runnerResult = new ReadmeRewriterRunnerResult();
+            runnerResult.Errors.Add("error");
+            _ = _mockRunner.Setup(
+               runner => runner.Run(
+               It.IsAny<string>(),
+               It.IsAny<string>(),
+               It.IsAny<string>(),
+               It.IsAny<string>(),
+               It.IsAny<RewriteTagsOptions>(),
+               _removeReplaceSettingsResult.Settings)).Returns(runnerResult);
+
+            bool taskResult = _readmeRewriterTask.Execute();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(taskResult, Is.EqualTo(false));
+                Assert.That(_readmeRewriterTask.OutputReadme, Is.Null);
+                Assert.That(_dummyLogBuildEngine.SingleErrorMessage(), Is.EqualTo("error"));
+            });
         }
     }
 }
