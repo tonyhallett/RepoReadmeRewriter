@@ -2,7 +2,6 @@
 
 namespace NugetRepoReadme.Runner
 {
-
     public class ReadmeRewriterRunnerResult
     {
         public List<string> Errors { get; } = new List<string>();
