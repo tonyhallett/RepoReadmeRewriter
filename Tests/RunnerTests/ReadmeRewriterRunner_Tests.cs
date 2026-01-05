@@ -9,7 +9,7 @@ using NugetRepoReadme.Runner;
 
 namespace Tests.RunnerTests
 {
-    internal class ReadmeRewriterRunner_Tests
+    internal sealed class ReadmeRewriterRunner_Tests
     {
         private readonly string _projectDirectoryPath = "projectdirectorypath";
 

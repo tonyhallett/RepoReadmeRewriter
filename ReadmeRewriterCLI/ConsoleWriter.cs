@@ -1,6 +1,6 @@
 ﻿namespace ReadmeRewriterCLI
 {
-    internal class ConsoleWriter : IConsoleWriter
+    internal sealed class ConsoleWriter : IConsoleWriter
     {
         public static IConsoleWriter Instance { get; } = new ConsoleWriter();
 

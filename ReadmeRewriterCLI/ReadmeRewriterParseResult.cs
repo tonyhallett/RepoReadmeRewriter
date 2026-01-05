@@ -1,6 +1,6 @@
 ﻿namespace ReadmeRewriterCLI
 {
-    internal class ReadmeRewriterParseResult
+    internal sealed class ReadmeRewriterParseResult
     {
         public ReadmeRewriterParseResult(IEnumerable<string> errors) => Errors = errors;
 

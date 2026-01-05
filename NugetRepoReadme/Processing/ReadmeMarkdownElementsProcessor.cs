@@ -6,23 +6,22 @@ using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 using NugetRepoReadme.AngleSharpDom;
 using NugetRepoReadme.MarkdigHelpers;
-using NugetRepoReadme.NugetValidation;
 using NugetRepoReadme.Repo;
 
 namespace NugetRepoReadme.Processing
 {
     internal class ReadmeMarkdownElementsProcessor : IReadmeMarkdownElementsProcessor
     {
-        private readonly INuGetImageDomainValidator _nugetImageDomainValidator;
+        private readonly IImageDomainValidator _imageDomainValidator;
         private readonly IRepoUrlHelper _repoUrlHelper;
         private readonly IHtmlFragmentParser _htmlFragmentParser;
 
         public ReadmeMarkdownElementsProcessor(
-            INuGetImageDomainValidator nugetImageDomainValidator,
+            IImageDomainValidator imageDomainValidator,
             IRepoUrlHelper repoUrlHelper,
             IHtmlFragmentParser htmlFragmentParser)
         {
-            _nugetImageDomainValidator = nugetImageDomainValidator;
+            _imageDomainValidator = imageDomainValidator;
             _repoUrlHelper = repoUrlHelper;
             _htmlFragmentParser = htmlFragmentParser;
         }
@@ -165,7 +164,7 @@ namespace NugetRepoReadme.Processing
                 string src = srcAlt.Src;
                 if (_repoUrlHelper.GetAbsoluteUri(src) is Uri absoluteUri)
                 {
-                    if (!_nugetImageDomainValidator.IsTrustedImageDomain(absoluteUri.OriginalString))
+                    if (!_imageDomainValidator.IsTrustedImageDomain(absoluteUri.OriginalString))
                     {
                         markdownElementsProcessResult.AddUnsupportedImageDomain(absoluteUri.Host);
                         return;
@@ -201,7 +200,7 @@ namespace NugetRepoReadme.Processing
                 }
 
                 Uri? absoluteUri = _repoUrlHelper.GetAbsoluteUri(linkInline.Url);
-                if (linkInline.IsImage && absoluteUri != null && !_nugetImageDomainValidator.IsTrustedImageDomain(absoluteUri.OriginalString))
+                if (linkInline.IsImage && absoluteUri != null && !_imageDomainValidator.IsTrustedImageDomain(absoluteUri.OriginalString))
                 {
                     markdownElementsProcessResult.AddUnsupportedImageDomain(absoluteUri.Host);
                     continue;

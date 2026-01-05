@@ -4,7 +4,10 @@ using NugetRepoReadme.RemoveReplace.Settings;
 
 namespace ReadmeRewriterCLI
 {
-    internal class RemoveReplaceConfigLoader(IIOHelper ioHelper, IConfigFileService fileService, IRemoveReplaceWordsParser removeReplaceWordsParser) : IRemoveReplaceConfigLoader
+    internal sealed class RemoveReplaceConfigLoader(
+        IIOHelper ioHelper,
+        IConfigFileService fileService,
+        IRemoveReplaceWordsParser removeReplaceWordsParser) : IRemoveReplaceConfigLoader
     {
         private sealed class RemoveReplaceConfig
         {

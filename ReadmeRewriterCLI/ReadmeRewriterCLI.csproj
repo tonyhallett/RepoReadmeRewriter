@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NugetRepoReadme\NugetRepoReadme.csproj" />
+    <ProjectReference Include="..\RepoReadmeRewriter\RepoReadmeRewriter.csproj" />
   </ItemGroup>
 
 </Project>

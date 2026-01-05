@@ -1,6 +1,6 @@
 ﻿namespace ReadmeRewriterCLI
 {
-    internal class ConfigFileService : IConfigFileService
+    internal sealed class ConfigFileService : IConfigFileService
     {
         public static IConfigFileService Instance { get; } = new ConfigFileService();
 

@@ -2,7 +2,7 @@
 
 namespace ReadmeRewriterCLI
 {
-    internal class RemoveReplaceWordsParserWrapper : IRemoveReplaceWordsParser
+    internal sealed class RemoveReplaceWordsParserWrapper : IRemoveReplaceWordsParser
     {
         public List<RemoveReplaceWord> Parse(string[] lines) => RemoveReplaceWordsParser.Parse(lines);
     }

@@ -3,7 +3,7 @@ using NugetRepoReadme.Runner;
 
 namespace ReadmeRewriterCLI
 {
-    internal class Runner(IReadmeRewriterCommandLineParser parser, IConsoleWriter consoleWriter, IOptionsProvider optionsProvider)
+    internal sealed class Runner(IReadmeRewriterCommandLineParser parser, IConsoleWriter consoleWriter, IOptionsProvider optionsProvider)
     {
         public Runner() : this(
             new ReadmeRewriterCommandLineParser(),

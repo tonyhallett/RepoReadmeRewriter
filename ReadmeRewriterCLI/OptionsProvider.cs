@@ -3,7 +3,7 @@ using NugetRepoReadme.RemoveReplace.Settings;
 
 namespace ReadmeRewriterCLI
 {
-    internal class OptionsProvider(
+    internal sealed class OptionsProvider(
         IConsoleWriter consoleWriter,
         IConfigFileService fileService,
         IGitHelper gitHelper,

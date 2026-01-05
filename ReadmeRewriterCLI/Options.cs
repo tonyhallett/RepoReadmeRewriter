@@ -3,7 +3,7 @@ using NugetRepoReadme.RemoveReplace.Settings;
 
 namespace ReadmeRewriterCLI
 {
-    internal class Options(
+    internal sealed class Options(
         string projectDir,
         string repoUrl,
         string repoRef,

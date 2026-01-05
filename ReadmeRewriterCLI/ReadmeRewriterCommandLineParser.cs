@@ -3,7 +3,7 @@ using System.CommandLine.Parsing;
 
 namespace ReadmeRewriterCLI
 {
-    internal class ReadmeRewriterCommandLineParser : IReadmeRewriterCommandLineParser
+    internal sealed class ReadmeRewriterCommandLineParser : IReadmeRewriterCommandLineParser
     {
         public ReadmeRewriterParseResult Parse(string[] args)
         {
