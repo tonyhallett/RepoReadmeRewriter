@@ -7,7 +7,7 @@ using RepoReadmeRewriter.Rewriter;
 
 namespace RepoReadmeRewriter.Runner
 {
-    internal sealed class ReadmeRewriterRunner : IReadmeRewriterRunner
+    public class ReadmeRewriterRunner : IReadmeRewriterRunner
     {
         private readonly IIOHelper _ioHelper;
         private readonly IRepoReadmeFilePathsProvider _repoReadmeFilePathsProvider;

@@ -2,9 +2,10 @@
 using Moq;
 using MSBuildTaskTestHelpers;
 using NugetRepoReadme;
-using NugetRepoReadme.Processing;
-using NugetRepoReadme.RemoveReplace.Settings;
-using NugetRepoReadme.Runner;
+using NugetRepoReadme.RemoveReplace;
+using RepoReadmeRewriter.Processing;
+using RepoReadmeRewriter.RemoveReplace.Settings;
+using RepoReadmeRewriter.Runner;
 using Tests.Utils;
 
 namespace Tests

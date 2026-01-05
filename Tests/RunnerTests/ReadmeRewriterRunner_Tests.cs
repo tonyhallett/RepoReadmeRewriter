@@ -1,11 +1,11 @@
 ﻿using Moq;
-using NugetRepoReadme.IOWrapper;
-using NugetRepoReadme.MSBuild;
-using NugetRepoReadme.Processing;
-using NugetRepoReadme.RemoveReplace.Settings;
-using NugetRepoReadme.Repo;
-using NugetRepoReadme.Rewriter;
-using NugetRepoReadme.Runner;
+using RepoReadmeRewriter.IOWrapper;
+using RepoReadmeRewriter.Messages;
+using RepoReadmeRewriter.Processing;
+using RepoReadmeRewriter.RemoveReplace.Settings;
+using RepoReadmeRewriter.Repo;
+using RepoReadmeRewriter.Rewriter;
+using RepoReadmeRewriter.Runner;
 
 namespace Tests.RunnerTests
 {

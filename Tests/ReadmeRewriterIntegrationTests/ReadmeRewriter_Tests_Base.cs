@@ -1,15 +1,17 @@
-using NugetRepoReadme.Processing;
-using NugetRepoReadme.RemoveReplace.Settings;
-using NugetRepoReadme.Rewriter;
+using Moq;
+using RepoReadmeRewriter.Processing;
+using RepoReadmeRewriter.RemoveReplace.Settings;
+using RepoReadmeRewriter.Rewriter;
 using Tests.Utils;
 
 namespace Tests.ReadmeRewriterIntegrationTests
 {
     internal abstract class ReadmeRewriter_Tests_Base
     {
-        private ReadmeRewriter? _readmeRewriter = new();
-
+        private ReadmeRewriter? _readmeRewriter ;
         private DummyReadmeRelativeFileExists _dummyReadmeRelativeFileExists = new();
+
+        protected Mock<IImageDomainValidator> MockImageDomainValidator { get; private set; }
 
         protected ReadmeRewriter ReadmeRewriter => _readmeRewriter!;
 
@@ -18,7 +20,8 @@ namespace Tests.ReadmeRewriterIntegrationTests
         [SetUp]
         public void Setup()
         {
-            _readmeRewriter = new ReadmeRewriter();
+            MockImageDomainValidator = new Mock<IImageDomainValidator>();
+            _readmeRewriter = new ReadmeRewriter(MockImageDomainValidator.Object);
             _dummyReadmeRelativeFileExists = new DummyReadmeRelativeFileExists();
         }
 

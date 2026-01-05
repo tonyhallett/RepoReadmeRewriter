@@ -1,7 +1,7 @@
 using NugetBuildTargetsIntegrationTesting;
 using NugetRepoReadme.MSBuild;
-using NugetRepoReadme.RemoveReplace.Settings;
-using NugetRepoReadme.Rewriter;
+using RepoReadmeRewriter.RemoveReplace.Settings;
+using RepoReadmeRewriter.Rewriter;
 
 namespace EndToEndTests
 {

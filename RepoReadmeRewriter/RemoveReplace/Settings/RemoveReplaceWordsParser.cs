@@ -2,7 +2,7 @@
 
 namespace RepoReadmeRewriter.RemoveReplace.Settings
 {
-    internal static class RemoveReplaceWordsParser
+    public static class RemoveReplaceWordsParser
     {
         /*
 Removals

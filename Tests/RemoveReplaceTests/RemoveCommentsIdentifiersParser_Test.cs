@@ -1,6 +1,7 @@
 ﻿using NugetRepoReadme.MSBuild;
-using NugetRepoReadme.Processing;
-using NugetRepoReadme.RemoveReplace.Settings;
+using NugetRepoReadme.RemoveReplace;
+using RepoReadmeRewriter.Processing;
+using RepoReadmeRewriter.RemoveReplace.Settings;
 using Tests.Utils;
 
 namespace Tests.RemoveReplaceTests

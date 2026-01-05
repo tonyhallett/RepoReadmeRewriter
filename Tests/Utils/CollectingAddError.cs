@@ -1,4 +1,4 @@
-﻿using NugetRepoReadme.RemoveReplace.Settings;
+﻿using NugetRepoReadme.RemoveReplace;
 
 namespace Tests.Utils
 {

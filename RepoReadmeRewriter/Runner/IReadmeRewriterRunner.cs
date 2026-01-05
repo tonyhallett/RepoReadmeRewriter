@@ -3,7 +3,7 @@ using RepoReadmeRewriter.RemoveReplace.Settings;
 
 namespace RepoReadmeRewriter.Runner
 {
-    internal interface IReadmeRewriterRunner
+    public interface IReadmeRewriterRunner
     {
         ReadmeRewriterRunnerResult Run(
             string projectDirectoryPath,

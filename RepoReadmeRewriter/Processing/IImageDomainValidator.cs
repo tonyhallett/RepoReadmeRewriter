@@ -1,6 +1,6 @@
 ﻿namespace RepoReadmeRewriter.Processing
 {
-    internal interface IImageDomainValidator
+    public interface IImageDomainValidator
     {
         bool IsTrustedImageDomain(string uriString);
     }

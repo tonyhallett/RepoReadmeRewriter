@@ -1,6 +1,6 @@
 ﻿namespace RepoReadmeRewriter.IOWrapper
 {
-    internal interface IIOHelper
+    public interface IIOHelper
     {
         bool FileExists(string filePath);
 

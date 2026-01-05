@@ -1,4 +1,4 @@
-﻿using NugetRepoReadme.IOWrapper;
+﻿using RepoReadmeRewriter.IOWrapper;
 
 namespace Tests.Helpers
 {

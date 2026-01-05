@@ -1,5 +1,5 @@
 ﻿using System;
-using NugetRepoReadme.Processing;
+using RepoReadmeRewriter.Processing;
 
 namespace NugetRepoReadme.NugetValidation
 {
@@ -8,6 +8,11 @@ namespace NugetRepoReadme.NugetValidation
     {
         private readonly INuGetTrustedImageDomains _trustedImageDomains;
         private readonly INuGetGitHubBadgeValidator _nugetGitHubBadgeValidator;
+
+        public NuGetImageDomainValidator()
+            : this(NuGetTrustedImageDomains.Instance, new NuGetGitHubBadgeValidator())
+        {
+        }
 
         public NuGetImageDomainValidator(INuGetTrustedImageDomains trustedImageDomains, INuGetGitHubBadgeValidator nugetGitHubBadgeValidator)
         {

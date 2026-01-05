@@ -4,16 +4,18 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Build.Framework;
 using NugetRepoReadme.MSBuild;
 using NugetRepoReadme.MSBuildHelpers;
-using NugetRepoReadme.Processing;
+using NugetRepoReadme.NugetValidation;
+using NugetRepoReadme.RemoveReplace;
 using NugetRepoReadme.RemoveReplace.Settings;
-using NugetRepoReadme.Runner;
-using InputOutputHelper = NugetRepoReadme.IOWrapper.IOHelper;
+using RepoReadmeRewriter.Processing;
+using RepoReadmeRewriter.Runner;
+using InputOutputHelper = RepoReadmeRewriter.IOWrapper.IOHelper;
 
 namespace NugetRepoReadme
 {
     public class ReadmeRewriterTask : Microsoft.Build.Utilities.Task
     {
-        internal const RewriteTagsOptions DefaultRewriteTagsOptions = Processing.RewriteTagsOptions.None;
+        internal const RewriteTagsOptions DefaultRewriteTagsOptions = RepoReadmeRewriter.Processing.RewriteTagsOptions.None;
 
         [Required]
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
@@ -63,7 +65,7 @@ namespace NugetRepoReadme
             new RemoveReplaceWordsProvider(InputOutputHelper.Instance, MSBuild.MessageProvider.Instance),
             MSBuild.MessageProvider.Instance);
 
-        internal IReadmeRewriterRunner Runner { get; set; } = new ReadmeRewriterRunner();
+        internal IReadmeRewriterRunner Runner { get; set; } = new ReadmeRewriterRunner(new NuGetImageDomainValidator());
 
         public override bool Execute()
         {
@@ -140,18 +142,18 @@ namespace NugetRepoReadme
                 bool errorsOnHtml = false;
                 if (bool.TryParse(ErrorOnHtml, out bool errorOnHtml) && errorOnHtml)
                 {
-                    options = Processing.RewriteTagsOptions.ErrorOnHtml;
+                    options = RepoReadmeRewriter.Processing.RewriteTagsOptions.ErrorOnHtml;
                     errorsOnHtml = true;
                 }
 
                 if (!errorsOnHtml && bool.TryParse(RemoveHtml, out bool removeHtml) && removeHtml)
                 {
-                    options = Processing.RewriteTagsOptions.RemoveHtml;
+                    options = RepoReadmeRewriter.Processing.RewriteTagsOptions.RemoveHtml;
                 }
 
                 if (bool.TryParse(ExtractDetailsContentWithoutSummary, out bool extractDetailsContentWithoutSummary) && extractDetailsContentWithoutSummary)
                 {
-                    options |= Processing.RewriteTagsOptions.ExtractDetailsContentWithoutSummary;
+                    options |= RepoReadmeRewriter.Processing.RewriteTagsOptions.ExtractDetailsContentWithoutSummary;
                 }
             }
 

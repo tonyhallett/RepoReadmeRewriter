@@ -1,3 +1,5 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("ReadmeRewriterCLI")]
+[assembly: InternalsVisibleTo("Tests")]
+[assembly: InternalsVisibleTo("EndToEndTests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

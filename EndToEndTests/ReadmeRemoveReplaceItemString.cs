@@ -1,6 +1,7 @@
 using System.Text;
 using NugetRepoReadme.MSBuild;
 using NugetRepoReadme.RemoveReplace.Settings;
+using RepoReadmeRewriter.RemoveReplace.Settings;
 
 namespace EndToEndTests
 {

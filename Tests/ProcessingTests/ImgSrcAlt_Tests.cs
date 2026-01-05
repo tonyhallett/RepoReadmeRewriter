@@ -1,6 +1,6 @@
 ﻿using AngleSharp.Html.Dom;
 using Moq;
-using NugetRepoReadme.Processing;
+using RepoReadmeRewriter.Processing;
 
 namespace Tests.ProcessingTests
 {

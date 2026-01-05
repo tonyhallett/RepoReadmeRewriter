@@ -4,7 +4,7 @@ using System.IO;
 namespace RepoReadmeRewriter.IOWrapper
 {
     [ExcludeFromCodeCoverage]
-    internal sealed class IOHelper : IIOHelper
+    public class IOHelper : IIOHelper
     {
         public static IOHelper Instance { get; } = new IOHelper();
 

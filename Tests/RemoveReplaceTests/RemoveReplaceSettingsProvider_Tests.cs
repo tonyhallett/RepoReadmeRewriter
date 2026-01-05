@@ -3,7 +3,8 @@ using Microsoft.Build.Utilities;
 using Moq;
 using NugetRepoReadme.MSBuild;
 using NugetRepoReadme.MSBuildHelpers;
-using NugetRepoReadme.RemoveReplace.Settings;
+using NugetRepoReadme.RemoveReplace;
+using RepoReadmeRewriter.RemoveReplace.Settings;
 using Tests.Utils;
 
 namespace Tests.RemoveReplaceTests

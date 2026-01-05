@@ -1,4 +1,4 @@
-﻿using NugetRepoReadme.Repo;
+﻿using RepoReadmeRewriter.Repo;
 
 namespace Tests.RepoTests
 {
