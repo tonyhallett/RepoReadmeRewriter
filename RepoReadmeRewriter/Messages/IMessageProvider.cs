@@ -1,4 +1,4 @@
-﻿namespace NugetRepoReadme.MSBuild
+﻿namespace RepoReadmeRewriter.Messages
 {
     internal interface IMessageProvider
     {

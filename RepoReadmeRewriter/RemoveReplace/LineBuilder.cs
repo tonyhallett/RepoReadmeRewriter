@@ -1,6 +1,7 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 
-namespace NugetRepoReadme.RemoveReplace
+namespace RepoReadmeRewriter.RemoveReplace
 {
     internal sealed class LineBuilder
     {

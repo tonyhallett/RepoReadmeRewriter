@@ -1,4 +1,6 @@
-﻿namespace NugetRepoReadme.Repo
+﻿using System;
+
+namespace RepoReadmeRewriter.Repo
 {
     internal sealed class RepoUrlHelper : IRepoUrlHelper
     {

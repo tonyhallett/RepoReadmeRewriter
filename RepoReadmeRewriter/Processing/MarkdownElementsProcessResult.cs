@@ -1,7 +1,9 @@
-﻿using Markdig.Syntax;
-using NugetRepoReadme.ReadmeReplacement;
+﻿using System;
+using System.Collections.Generic;
+using Markdig.Syntax;
+using RepoReadmeRewriter.ReadmeReplacement;
 
-namespace NugetRepoReadme.Processing
+namespace RepoReadmeRewriter.Processing
 {
     internal sealed class MarkdownElementsProcessResult : IMarkdownElementsProcessResult
     {

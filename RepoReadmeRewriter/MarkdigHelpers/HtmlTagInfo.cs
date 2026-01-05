@@ -1,4 +1,4 @@
-﻿namespace NugetRepoReadme.MarkdigHelpers
+﻿namespace RepoReadmeRewriter.MarkdigHelpers
 {
     internal sealed class HtmlTagInfo
     {

@@ -1,6 +1,6 @@
 ﻿using AngleSharp.Html.Dom;
 
-namespace NugetRepoReadme.Processing
+namespace RepoReadmeRewriter.Processing
 {
     internal sealed class ImgSrcAlt
     {

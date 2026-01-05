@@ -1,4 +1,4 @@
-﻿namespace NugetRepoReadme.RemoveReplace.Settings
+﻿namespace RepoReadmeRewriter.RemoveReplace.Settings
 {
     public enum CommentOrRegex
     {

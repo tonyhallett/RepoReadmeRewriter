@@ -1,4 +1,6 @@
-﻿namespace NugetRepoReadme.ReadmeReplacement
+﻿using System.Collections.Generic;
+
+namespace RepoReadmeRewriter.ReadmeReplacement
 {
     internal sealed class ReadmeReplacer : IReadmeReplacer
     {

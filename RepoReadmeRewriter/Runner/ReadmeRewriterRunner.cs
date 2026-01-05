@@ -1,11 +1,11 @@
-﻿using NugetRepoReadme.IOWrapper;
-using NugetRepoReadme.MSBuild;
-using NugetRepoReadme.Processing;
-using NugetRepoReadme.RemoveReplace.Settings;
-using NugetRepoReadme.Repo;
-using NugetRepoReadme.Rewriter;
+﻿using RepoReadmeRewriter.IOWrapper;
+using RepoReadmeRewriter.Messages;
+using RepoReadmeRewriter.Processing;
+using RepoReadmeRewriter.RemoveReplace.Settings;
+using RepoReadmeRewriter.Repo;
+using RepoReadmeRewriter.Rewriter;
 
-namespace NugetRepoReadme.Runner
+namespace RepoReadmeRewriter.Runner
 {
     internal sealed class ReadmeRewriterRunner : IReadmeRewriterRunner
     {
@@ -19,7 +19,7 @@ namespace NugetRepoReadme.Runner
     IOHelper.Instance,
     new RepoReadmeFilePathsProvider(),
     new ReadmeRewriter(imageDomainValidator),
-    MSBuild.MessageProvider.Instance)
+    new MessageProvider())
         {
         }
 
@@ -28,7 +28,7 @@ namespace NugetRepoReadme.Runner
             IOHelper.Instance,
             new RepoReadmeFilePathsProvider(),
             new ReadmeRewriter(new NoopImageDomainValidator()),
-            MSBuild.MessageProvider.Instance)
+            new MessageProvider())
         {
         }
 

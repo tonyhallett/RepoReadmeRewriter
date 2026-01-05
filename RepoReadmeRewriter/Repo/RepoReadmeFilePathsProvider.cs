@@ -1,4 +1,7 @@
-﻿namespace NugetRepoReadme.Repo
+﻿using System.Collections.Generic;
+using System.IO;
+
+namespace RepoReadmeRewriter.Repo
 {
     internal sealed class RepoReadmeFilePathsProvider : IRepoReadmeFilePathsProvider
     {

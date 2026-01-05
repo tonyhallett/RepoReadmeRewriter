@@ -1,11 +1,13 @@
-﻿using NugetRepoReadme.AngleSharpDom;
-using NugetRepoReadme.Processing;
-using NugetRepoReadme.ReadmeReplacement;
-using NugetRepoReadme.RemoveReplace;
-using NugetRepoReadme.RemoveReplace.Settings;
-using NugetRepoReadme.Repo;
+﻿using System.Collections.Generic;
+using System.Linq;
+using RepoReadmeRewriter.AngleSharpDom;
+using RepoReadmeRewriter.Processing;
+using RepoReadmeRewriter.ReadmeReplacement;
+using RepoReadmeRewriter.RemoveReplace;
+using RepoReadmeRewriter.RemoveReplace.Settings;
+using RepoReadmeRewriter.Repo;
 
-namespace NugetRepoReadme.Rewriter
+namespace RepoReadmeRewriter.Rewriter
 {
     internal sealed class ReadmeRewriter : IReadmeRewriter
     {
@@ -119,12 +121,10 @@ namespace NugetRepoReadme.Rewriter
                     result.ApplyFurtherReplacements();
                 }
 
-#pragma warning disable CA1508 // Avoid dead conditional code
-                if (getResult && result.Result != null)
+                if (getResult)
                 {
                     rewrittenReadme = result.Result;
                 }
-#pragma warning restore CA1508 // Avoid dead conditional code
             }
 
             return new ReadmeRewriterResult(

@@ -1,7 +1,9 @@
-﻿using Markdig.Syntax;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 
-namespace NugetRepoReadme.Processing
+namespace RepoReadmeRewriter.Processing
 {
     internal sealed class RelevantMarkdownElements
     {

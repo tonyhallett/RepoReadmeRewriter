@@ -1,9 +1,10 @@
-﻿using AngleSharp;
+﻿using System.Linq;
+using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using Markdig.Syntax;
 
-namespace NugetRepoReadme.AngleSharpDom
+namespace RepoReadmeRewriter.AngleSharpDom
 {
     internal sealed class HtmlFragmentParser : IHtmlFragmentParser
     {

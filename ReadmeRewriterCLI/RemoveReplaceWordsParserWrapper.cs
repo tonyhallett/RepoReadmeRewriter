@@ -1,4 +1,4 @@
-﻿using NugetRepoReadme.RemoveReplace.Settings;
+﻿using RepoReadmeRewriter.RemoveReplace.Settings;
 
 namespace ReadmeRewriterCLI
 {

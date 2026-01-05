@@ -1,18 +1,13 @@
-﻿using NugetRepoReadme.Repo;
+﻿using System.IO;
+using RepoReadmeRewriter.Repo;
 
-namespace NugetRepoReadme.Processing
+namespace RepoReadmeRewriter.Processing
 {
-    internal sealed class ReadmeRelativeFileExists : IReadmeRelativeFileExists
+    internal sealed class ReadmeRelativeFileExists(string repoDirectoryPath, string readmeDirectoryPath) : IReadmeRelativeFileExists
     {
-        public string RepoDirectoryPath { get; }
+        public string RepoDirectoryPath { get; } = repoDirectoryPath;
 
-        public string ReadmeDirectoryPath { get; }
-
-        public ReadmeRelativeFileExists(string repoDirectoryPath, string readmeDirectoryPath)
-        {
-            RepoDirectoryPath = repoDirectoryPath;
-            ReadmeDirectoryPath = readmeDirectoryPath;
-        }
+        public string ReadmeDirectoryPath { get; } = readmeDirectoryPath;
 
         public bool Exists(string relativePath) => File.Exists(GetPath(relativePath));
 

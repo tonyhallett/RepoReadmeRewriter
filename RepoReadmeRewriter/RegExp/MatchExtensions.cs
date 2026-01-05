@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace NugetRepoReadme.RegExp
+namespace RepoReadmeRewriter.RegExp
 {
     internal static class MatchExtensions
     {

@@ -1,8 +1,8 @@
 ﻿using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
-using NugetRepoReadme.MarkdigHelpers;
+using RepoReadmeRewriter.MarkdigHelpers;
 
-namespace NugetRepoReadme.Processing
+namespace RepoReadmeRewriter.Processing
 {
     internal sealed class HtmlInlineATag
     {

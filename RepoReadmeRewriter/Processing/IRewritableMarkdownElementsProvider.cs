@@ -1,4 +1,4 @@
-﻿namespace NugetRepoReadme.Processing
+﻿namespace RepoReadmeRewriter.Processing
 {
     internal interface IRewritableMarkdownElementsProvider
     {

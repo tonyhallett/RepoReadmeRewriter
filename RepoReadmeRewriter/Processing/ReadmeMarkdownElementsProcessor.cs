@@ -1,12 +1,14 @@
-﻿using AngleSharp.Dom;
+﻿using System;
+using System.Collections.Generic;
+using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
-using NugetRepoReadme.AngleSharpDom;
-using NugetRepoReadme.MarkdigHelpers;
-using NugetRepoReadme.Repo;
+using RepoReadmeRewriter.AngleSharpDom;
+using RepoReadmeRewriter.MarkdigHelpers;
+using RepoReadmeRewriter.Repo;
 
-namespace NugetRepoReadme.Processing
+namespace RepoReadmeRewriter.Processing
 {
     internal sealed class ReadmeMarkdownElementsProcessor : IReadmeMarkdownElementsProcessor
     {

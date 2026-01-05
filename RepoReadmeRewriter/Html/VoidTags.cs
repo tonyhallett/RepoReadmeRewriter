@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace NugetRepoReadme.Html
+namespace RepoReadmeRewriter.Html
 {
     internal static class VoidTags
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace NugetRepoReadme.Repo
+namespace RepoReadmeRewriter.Repo
 {
     internal sealed class RepoPaths
     {

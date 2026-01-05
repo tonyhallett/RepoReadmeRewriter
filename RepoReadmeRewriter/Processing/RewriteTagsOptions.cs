@@ -1,4 +1,6 @@
-﻿namespace NugetRepoReadme.Processing
+﻿using System;
+
+namespace RepoReadmeRewriter.Processing
 {
     [Flags]
     public enum RewriteTagsOptions

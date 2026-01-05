@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NugetRepoReadme.Runner
+namespace RepoReadmeRewriter.Runner
 {
     public class ReadmeRewriterRunnerResult
     {

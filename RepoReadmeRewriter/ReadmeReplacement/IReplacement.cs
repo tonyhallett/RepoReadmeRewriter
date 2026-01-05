@@ -1,4 +1,4 @@
-﻿namespace NugetRepoReadme.ReadmeReplacement
+﻿namespace RepoReadmeRewriter.ReadmeReplacement
 {
     internal interface IReplacement
     {

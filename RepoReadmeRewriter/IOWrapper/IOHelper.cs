@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
-namespace NugetRepoReadme.IOWrapper
+namespace RepoReadmeRewriter.IOWrapper
 {
     [ExcludeFromCodeCoverage]
     internal sealed class IOHelper : IIOHelper

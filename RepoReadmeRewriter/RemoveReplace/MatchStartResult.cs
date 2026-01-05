@@ -1,4 +1,4 @@
-﻿namespace NugetRepoReadme.RemoveReplace
+﻿namespace RepoReadmeRewriter.RemoveReplace
 {
     internal sealed class MatchStartResult
     {

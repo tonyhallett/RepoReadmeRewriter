@@ -1,6 +1,6 @@
-﻿using NugetRepoReadme.Repo;
+﻿using RepoReadmeRewriter.Repo;
 
-namespace NugetRepoReadme.Processing
+namespace RepoReadmeRewriter.Processing
 {
     internal interface IReadmeMarkdownElementsProcessor
     {

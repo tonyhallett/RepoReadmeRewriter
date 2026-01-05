@@ -1,5 +1,5 @@
-﻿using NugetRepoReadme.IOWrapper;
-using NugetRepoReadme.Runner;
+﻿using RepoReadmeRewriter.IOWrapper;
+using RepoReadmeRewriter.Runner;
 
 namespace ReadmeRewriterCLI
 {

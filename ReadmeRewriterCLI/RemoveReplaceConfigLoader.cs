@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
-using NugetRepoReadme.IOWrapper;
-using NugetRepoReadme.RemoveReplace.Settings;
+using RepoReadmeRewriter.IOWrapper;
+using RepoReadmeRewriter.RemoveReplace.Settings;
 
 namespace ReadmeRewriterCLI
 {

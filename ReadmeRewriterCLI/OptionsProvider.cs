@@ -1,5 +1,5 @@
-﻿using NugetRepoReadme.Processing;
-using NugetRepoReadme.RemoveReplace.Settings;
+﻿using RepoReadmeRewriter.Processing;
+using RepoReadmeRewriter.RemoveReplace.Settings;
 
 namespace ReadmeRewriterCLI
 {

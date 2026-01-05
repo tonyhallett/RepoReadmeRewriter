@@ -1,12 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace NugetRepoReadme.MSBuild
+namespace RepoReadmeRewriter.Messages
 {
     [ExcludeFromCodeCoverage]
     internal sealed class MessageProvider : IMessageProvider
     {
-        public static MessageProvider Instance { get; } = new MessageProvider();
-
         public string CannotFindGitRepository() => "Cannot find Git repository";
 
         public string CouldNotParseRepositoryUrl(string? repositoryUrl)

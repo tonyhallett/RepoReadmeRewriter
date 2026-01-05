@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
-using NugetRepoReadme.RemoveReplace.Settings;
+using RepoReadmeRewriter.RemoveReplace.Settings;
 
-namespace NugetRepoReadme.RemoveReplace
+namespace RepoReadmeRewriter.RemoveReplace
 {
     internal sealed class RemoveCommentRegexes
     {

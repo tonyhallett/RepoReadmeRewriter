@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NugetRepoReadme.Repo
+namespace RepoReadmeRewriter.Repo
 {
     internal interface IRepoUrlHelper
     {

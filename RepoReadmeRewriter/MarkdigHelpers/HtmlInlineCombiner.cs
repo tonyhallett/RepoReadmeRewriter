@@ -1,7 +1,8 @@
-﻿using Markdig.Syntax.Inlines;
-using NugetRepoReadme.Html;
+﻿using System.Collections.Generic;
+using Markdig.Syntax.Inlines;
+using RepoReadmeRewriter.Html;
 
-namespace NugetRepoReadme.MarkdigHelpers
+namespace RepoReadmeRewriter.MarkdigHelpers
 {
     internal static class HtmlInlineCombiner
     {

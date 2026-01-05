@@ -1,6 +1,7 @@
-﻿using NugetRepoReadme.RemoveReplace.Settings;
+﻿using System.Collections.Generic;
+using RepoReadmeRewriter.RemoveReplace.Settings;
 
-namespace NugetRepoReadme.RemoveReplace
+namespace RepoReadmeRewriter.RemoveReplace
 {
     internal sealed class RemoveReplaceRegexesFactory : IRemoveReplaceRegexesFactory
     {

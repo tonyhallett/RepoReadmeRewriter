@@ -3,7 +3,7 @@ using System.Linq;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 
-namespace NugetRepoReadme.Processing
+namespace RepoReadmeRewriter.Processing
 {
     internal static class ExtractDetailsContentMarkdownWithoutSummary
     {

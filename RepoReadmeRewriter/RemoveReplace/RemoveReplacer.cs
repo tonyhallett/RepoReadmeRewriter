@@ -1,7 +1,7 @@
-﻿using NugetRepoReadme.RegExp;
-using NugetRepoReadme.RemoveReplace.Settings;
+﻿using RepoReadmeRewriter.RegExp;
+using RepoReadmeRewriter.RemoveReplace.Settings;
 
-namespace NugetRepoReadme.RemoveReplace
+namespace RepoReadmeRewriter.RemoveReplace
 {
     internal sealed class RemoveReplacer : IRemoveReplacer
     {

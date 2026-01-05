@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NugetRepoReadme.RemoveReplace.Settings
+namespace RepoReadmeRewriter.RemoveReplace.Settings
 {
     internal static class RemoveReplaceWordsParser
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NugetRepoReadme.ReadmeReplacement
+namespace RepoReadmeRewriter.ReadmeReplacement
 {
     internal interface IFurtherReplacement
     {

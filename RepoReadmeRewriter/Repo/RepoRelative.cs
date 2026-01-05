@@ -1,4 +1,4 @@
-﻿namespace NugetRepoReadme.Repo
+﻿namespace RepoReadmeRewriter.Repo
 {
     internal static class RepoRelative
     {

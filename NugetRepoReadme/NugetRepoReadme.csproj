@@ -72,6 +72,9 @@
         <_Parameter1>ReadmeRewriterCLI</_Parameter1>
     </AssemblyAttribute>
    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RepoReadmeRewriter\RepoReadmeRewriter.csproj" />
+  </ItemGroup>
 
    <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="ResolveReferences">
         <ItemGroup>

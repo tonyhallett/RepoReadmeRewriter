@@ -1,9 +1,10 @@
-﻿using AngleSharp.Dom;
+﻿using System;
+using AngleSharp.Dom;
 using Markdig;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 
-namespace NugetRepoReadme.Processing
+namespace RepoReadmeRewriter.Processing
 {
     internal sealed class RewritableMarkdownElementsProvider : IRewritableMarkdownElementsProvider
     {
@@ -16,8 +17,8 @@ namespace NugetRepoReadme.Processing
             MarkdownDocument document = Markdown.Parse(readme, pipeline);
             return new RelevantMarkdownElements(
                 document.Descendants<LinkInline>(),
-                excludeHtml ? Array.Empty<HtmlBlock>() : document.Descendants<HtmlBlock>(),
-                excludeHtml ? Array.Empty<HtmlInline>() : document.Descendants<HtmlInline>());
+                excludeHtml ? [] : document.Descendants<HtmlBlock>(),
+                excludeHtml ? [] : document.Descendants<HtmlInline>());
         }
     }
 }

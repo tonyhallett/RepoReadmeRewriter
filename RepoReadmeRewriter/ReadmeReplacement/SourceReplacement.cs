@@ -1,6 +1,6 @@
 ﻿using Markdig.Syntax;
 
-namespace NugetRepoReadme.ReadmeReplacement
+namespace RepoReadmeRewriter.ReadmeReplacement
 {
     internal sealed class SourceReplacement
     {

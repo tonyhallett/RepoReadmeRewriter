@@ -1,4 +1,6 @@
-﻿namespace NugetRepoReadme.Rewriter
+﻿using System.Collections.Generic;
+
+namespace RepoReadmeRewriter.Rewriter
 {
     internal sealed class ReadmeRewriterResult(
         string? rewrittenReadme,

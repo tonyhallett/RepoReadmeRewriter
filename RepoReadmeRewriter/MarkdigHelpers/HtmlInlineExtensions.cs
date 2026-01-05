@@ -2,7 +2,7 @@
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 
-namespace NugetRepoReadme.MarkdigHelpers
+namespace RepoReadmeRewriter.MarkdigHelpers
 {
     internal static class HtmlInlineExtensions
     {

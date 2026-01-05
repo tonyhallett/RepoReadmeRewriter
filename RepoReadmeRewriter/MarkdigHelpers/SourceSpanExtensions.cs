@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Markdig.Syntax;
 
-namespace NugetRepoReadme.MarkdigHelpers
+namespace RepoReadmeRewriter.MarkdigHelpers
 {
     internal static class SourceSpanExtensions
     {

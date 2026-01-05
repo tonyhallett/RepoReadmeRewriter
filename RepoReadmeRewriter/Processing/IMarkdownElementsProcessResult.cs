@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using NugetRepoReadme.ReadmeReplacement;
+using RepoReadmeRewriter.ReadmeReplacement;
 
-namespace NugetRepoReadme.Processing
+namespace RepoReadmeRewriter.Processing
 {
     internal interface IMarkdownElementsProcessResult
     {

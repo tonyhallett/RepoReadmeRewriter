@@ -1,7 +1,7 @@
-﻿using NugetRepoReadme.Processing;
-using NugetRepoReadme.RemoveReplace.Settings;
+﻿using RepoReadmeRewriter.Processing;
+using RepoReadmeRewriter.RemoveReplace.Settings;
 
-namespace NugetRepoReadme.Rewriter
+namespace RepoReadmeRewriter.Rewriter
 {
     internal interface IReadmeRewriter
     {

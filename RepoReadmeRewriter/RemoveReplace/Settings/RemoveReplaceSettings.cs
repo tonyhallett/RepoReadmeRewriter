@@ -1,4 +1,6 @@
-﻿namespace NugetRepoReadme.RemoveReplace.Settings
+﻿using System.Collections.Generic;
+
+namespace RepoReadmeRewriter.RemoveReplace.Settings
 {
     public class RemoveReplaceSettings(
         RemoveCommentIdentifiers? removeCommentIdentifiers,

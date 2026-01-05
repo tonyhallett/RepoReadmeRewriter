@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using Markdig.Syntax;
-using NugetRepoReadme.MarkdigHelpers;
+using RepoReadmeRewriter.MarkdigHelpers;
 
-namespace NugetRepoReadme.Processing
+namespace RepoReadmeRewriter.Processing
 {
     internal static class MarkdownElementsProcessResultExtensions
     {

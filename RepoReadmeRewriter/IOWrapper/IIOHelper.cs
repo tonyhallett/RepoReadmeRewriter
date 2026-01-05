@@ -1,4 +1,4 @@
-﻿namespace NugetRepoReadme.IOWrapper
+﻿namespace RepoReadmeRewriter.IOWrapper
 {
     internal interface IIOHelper
     {

@@ -1,6 +1,7 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
-namespace NugetRepoReadme.RemoveReplace
+namespace RepoReadmeRewriter.RemoveReplace
 {
     internal sealed class RemoveReplaceRegexes : IRemoveReplaceRegexes
     {

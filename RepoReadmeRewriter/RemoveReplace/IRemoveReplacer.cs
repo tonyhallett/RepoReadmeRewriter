@@ -1,6 +1,6 @@
-﻿using NugetRepoReadme.RemoveReplace.Settings;
+﻿using RepoReadmeRewriter.RemoveReplace.Settings;
 
-namespace NugetRepoReadme.RemoveReplace
+namespace RepoReadmeRewriter.RemoveReplace
 {
     internal interface IRemoveReplacer
     {
