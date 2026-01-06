@@ -140,7 +140,6 @@ namespace CLITests
             });
         }
 
-        // todo removeReplaceSettings - should try parser validating configPath
         [Test]
         public void Should_Have_Null_RemoveReplaceSettings_If_No_ConfigPath_Provided()
         {
