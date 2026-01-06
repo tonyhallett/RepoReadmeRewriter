@@ -21,5 +21,13 @@ namespace Tests.Helpers
         public string ReadAllText(string readmePath) => ReadmeText;
 
         public string[] ReadAllLines(string filePath) => throw new NotImplementedException();
+
+        public void WriteAllText(string filePath, string contents) => throw new NotImplementedException();
+
+        public string EnsureAbsolute(string relativeDirectory, string absoluteOrRelativePath) => throw new NotImplementedException();
+
+        public bool DirectoryExists(string dir) => throw new NotImplementedException();
+
+        public string? GetDirectoryName(string filePath) => throw new NotImplementedException();
     }
 }

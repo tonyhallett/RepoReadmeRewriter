@@ -2,8 +2,10 @@
 {
     internal interface IConsoleWriter
     {
-        void WriteError(string message);
+        void WriteLine(string message);
 
-        void WriteWarning(string message);
+        void WriteErrorLine(string message);
+
+        void WriteWarningLine(string message);
     }
 }

@@ -1,57 +1,53 @@
-﻿namespace ReadmeRewriterCLI
-{
-    internal sealed class ConfigFileService : IConfigFileService
-    {
-        public static IConfigFileService Instance { get; } = new ConfigFileService();
+﻿using System.Diagnostics.CodeAnalysis;
+using RepoReadmeRewriter.IOWrapper;
 
-        private string? _configPath;
-        private string? _projectDirectory;
+namespace ReadmeRewriterCLI
+{
+    internal sealed class ConfigFileService(IIOHelper ioHelper) : IConfigFileService
+    {
+        [ExcludeFromCodeCoverage]
+        public static ConfigFileService Instance { get; private set; } = null!;
+
+        [ExcludeFromCodeCoverage]
+        static ConfigFileService() => Instance = new ConfigFileService(IOHelper.Instance);
+
+        private class RelativeDirectories(string configDirectory, string projectDirectory)
+        {
+            internal string GetDirectory(bool getConfigDirectory) => getConfigDirectory ? configDirectory : projectDirectory;
+        }
+
+        private RelativeDirectories? _relativeDirectories;
 
         public string? GetConfigFile(string path)
         {
-            if (Path.IsPathRooted(path))
-            {
-                return ExistsOrNull(path);
-            }
-
-            string resolved = ResolveRelativeToConfigPath(path);
-            if (File.Exists(resolved))
+            string resolved = ResolveRelativeTo(path, true);
+            if (ioHelper.FileExists(resolved))
             {
                 return resolved;
             }
 
-            resolved = ResolveRelativeToProjectDirectory(path);
-            return ExistsOrNull(resolved);
+            resolved = ResolveRelativeTo(path, false);
+            return ioHelper.FileExists(resolved) ? resolved : null;
         }
 
-        private static string? ExistsOrNull(string path) => File.Exists(path) ? path : null;
-
-        private string ResolveRelativeToConfigPath(string path)
-        {
-            if (_configPath == null)
-            {
-                throw new InvalidOperationException("Config path is not set. Call GetConfigPath first.");
-            }
-
-            string configDirectory = Path.GetDirectoryName(_configPath) ?? string.Empty;
-            return Path.Combine(configDirectory, path);
-        }
-
-        private string ResolveRelativeToProjectDirectory(string path) => _projectDirectory == null
-                ? throw new InvalidOperationException("Project directory is not set. Call GetConfigPath first.")
-                : Path.Combine(_projectDirectory, path);
+        private string ResolveRelativeTo(string path, bool toConfigDirectory) => _relativeDirectories == null
+                ? throw new InvalidOperationException("Call GetConfigPath first")
+                : ioHelper.EnsureAbsolute(_relativeDirectories.GetDirectory(toConfigDirectory), path);
 
         public string? GetConfigPath(string projectDirectory, string path)
         {
-            _projectDirectory = projectDirectory;
-            // if path is absolute, return it directly
-            string? resolvedConfigPath = Path.IsPathRooted(path) ? path : ResolveRelativeToProjectDirectory(path);
-            if (File.Exists(resolvedConfigPath))
+            string? resolvedConfigPath = ioHelper.EnsureAbsolute(projectDirectory, path);
+            if (ioHelper.FileExists(resolvedConfigPath))
             {
-                _configPath = resolvedConfigPath;
+                string? configDirectory = ioHelper.GetDirectoryName(resolvedConfigPath) ?? throw new InvalidOperationException("Could not determine config directory from config file path.");
+                _relativeDirectories = new RelativeDirectories(configDirectory, projectDirectory);
+            }
+            else
+            {
+                resolvedConfigPath = null;
             }
 
-            return _configPath;
+            return resolvedConfigPath;
         }
     }
 }

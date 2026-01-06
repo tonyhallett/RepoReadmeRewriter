@@ -9,7 +9,8 @@ namespace ReadmeRewriterCLI
         string repoRef,
         string readmeRel,
         RewriteTagsOptions rewriteTagsOptions,
-        RemoveReplaceSettings? removeReplaceSettings)
+        RemoveReplaceSettings? removeReplaceSettings,
+        string outputReadme)
     {
         public string ProjectDir { get; } = projectDir;
         public string RepoUrl { get; } = repoUrl;
@@ -17,5 +18,6 @@ namespace ReadmeRewriterCLI
         public string ReadmeRel { get; } = readmeRel;
         public RewriteTagsOptions RewriteTagsOptions { get; } = rewriteTagsOptions;
         public RemoveReplaceSettings? RemoveReplaceSettings { get; } = removeReplaceSettings;
+        public string OutputReadme { get; } = outputReadme;
     }
 }

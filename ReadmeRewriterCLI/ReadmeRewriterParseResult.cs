@@ -1,24 +1,33 @@
 ﻿namespace ReadmeRewriterCLI
 {
-    internal sealed class ReadmeRewriterParseResult
+    internal sealed class ReadmeRewriterParseResult(
+        string repoUrl,
+        string readmeRelative,
+        string? configPath,
+        string? repoRef,
+        string projectDir,
+        string outputReadme,
+        bool errorOnHtml,
+        bool removeHtml,
+        bool extractDetailsSummary
+    )
     {
-        public ReadmeRewriterParseResult(IEnumerable<string> errors) => Errors = errors;
+        public string RepoUrl { get; } = repoUrl;
 
-        public ReadmeRewriterParseResult(
-            string repoUrl, string? readmeRelative, string? rewriteTags, string? configPath, string? repoRef)
-        {
-            RepoUrl = repoUrl;
-            ReadmeRelative = readmeRelative;
-            RewriteTags = rewriteTags;
-            ConfigPath = configPath;
-            RepoRef = repoRef;
-        }
+        public string ReadmeRelative { get; } = readmeRelative;
 
-        public string? RepoUrl { get; }
-        public string? ReadmeRelative { get; }
-        public string? RewriteTags { get; }
-        public string? ConfigPath { get; }
-        public string? RepoRef { get; }
-        public IEnumerable<string>? Errors { get; }
+        public string? ConfigPath { get; } = configPath;
+
+        public string? RepoRef { get; } = repoRef;
+
+        public string ProjectDir { get; } = projectDir;
+
+        public string OutputReadme { get; } = outputReadme;
+
+        public bool ErrorOnHtml { get; } = errorOnHtml;
+
+        public bool RemoveHtml { get; } = removeHtml;
+
+        public bool ExtractDetailsSummary { get; } = extractDetailsSummary;
     }
 }

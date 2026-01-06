@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReadmeRewriterCLI", "Readme
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepoReadmeRewriter", "RepoReadmeRewriter\RepoReadmeRewriter.csproj", "{62981E44-5851-4F56-8E68-4DC678A1DD34}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CLITests", "CLITests\CLITests.csproj", "{1503BCF3-B480-4F7A-8553-AC11AD0CACF5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,12 @@ Global
 		{62981E44-5851-4F56-8E68-4DC678A1DD34}.IntegrationTests|Any CPU.Build.0 = Debug|Any CPU
 		{62981E44-5851-4F56-8E68-4DC678A1DD34}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62981E44-5851-4F56-8E68-4DC678A1DD34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1503BCF3-B480-4F7A-8553-AC11AD0CACF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1503BCF3-B480-4F7A-8553-AC11AD0CACF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1503BCF3-B480-4F7A-8553-AC11AD0CACF5}.IntegrationTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{1503BCF3-B480-4F7A-8553-AC11AD0CACF5}.IntegrationTests|Any CPU.Build.0 = Debug|Any CPU
+		{1503BCF3-B480-4F7A-8553-AC11AD0CACF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1503BCF3-B480-4F7A-8553-AC11AD0CACF5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace ReadmeRewriterCLI
 {
+    [ExcludeFromCodeCoverage]
     internal sealed class GitHelper : IGitHelper
     {
         /// <summary>

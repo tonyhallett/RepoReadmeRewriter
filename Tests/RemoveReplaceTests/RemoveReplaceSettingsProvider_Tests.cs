@@ -26,7 +26,7 @@ namespace Tests.RemoveReplaceTests
             _mockRemoveCommentsIdentifiers = new Mock<IRemoveCommentsIdentifiersParser>();
             _mockRemoveReplaceWordsProvider = new Mock<IRemoveReplaceWordsProvider>();
             _ = _mockRemoveReplaceWordsProvider.Setup(removeReplaceWordsProvider => removeReplaceWordsProvider.Provide(It.IsAny<ITaskItem[]?>(), It.IsAny<IAddError>()))
-                .Returns(new List<RemoveReplaceWord>());
+                .Returns([]);
             _removeReplaceSettingsProvider = new RemoveReplaceSettingsProvider(
                 _mockMSBuildMetadataProvider.Object,
                 _mockRemoveCommentsIdentifiers.Object,

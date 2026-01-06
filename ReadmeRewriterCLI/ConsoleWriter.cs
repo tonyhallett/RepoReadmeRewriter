@@ -1,11 +1,21 @@
-﻿namespace ReadmeRewriterCLI
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace ReadmeRewriterCLI
 {
+    [ExcludeFromCodeCoverage]
     internal sealed class ConsoleWriter : IConsoleWriter
     {
         public static IConsoleWriter Instance { get; } = new ConsoleWriter();
 
-        public void WriteError(string message) => Console.Error.WriteLine(message);
+        public void WriteLine(string message) => Console.WriteLine(message);
 
-        public void WriteWarning(string message) => Console.WriteLine(message);
+        public void WriteErrorLine(string message) => Console.Error.WriteLine(message);
+
+        public void WriteWarningLine(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Error.WriteLine(message);
+            Console.ResetColor();
+        }
     }
 }

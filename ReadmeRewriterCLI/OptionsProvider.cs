@@ -1,23 +1,88 @@
-﻿using RepoReadmeRewriter.Processing;
+﻿using RepoReadmeRewriter.IOWrapper;
+using RepoReadmeRewriter.Processing;
 using RepoReadmeRewriter.RemoveReplace.Settings;
 
 namespace ReadmeRewriterCLI
 {
     internal sealed class OptionsProvider(
-        IConsoleWriter consoleWriter,
-        IConfigFileService fileService,
+        IConfigFileService configFileService,
         IGitHelper gitHelper,
-        IRemoveReplaceConfigLoader removeReplaceConfigLoader) : IOptionsProvider
+        IRemoveReplaceConfigLoader removeReplaceConfigLoader,
+        IIOHelper ioHelper
+        ) : IOptionsProvider
     {
         public (Options? options, IEnumerable<string>? errors) Provide(ReadmeRewriterParseResult parseResult)
+        {
+            string projectDir = parseResult.ProjectDir;
+            if (!ioHelper.DirectoryExists(projectDir))
+            {
+                return (null, [$"Project directory does not exist: {projectDir}"]);
+            }
+
+            List<string> errors = [];
+
+            string? repoRef = GetRepoRef(parseResult, errors, projectDir);
+
+            RemoveReplaceSettings? removeReplace = GetRemoveReplaceSettings(parseResult.ConfigPath, errors, projectDir);
+
+            RewriteTagsOptions rewriteTagsOptions = GetRewriteTagsOptions(parseResult, errors);
+
+            if (errors.Count >0)
+            {
+                return (null, errors);
+            }
+            
+            return (
+                new Options(
+                    projectDir,
+                    parseResult.RepoUrl,
+                    repoRef!,
+                    parseResult.ReadmeRelative,
+                    rewriteTagsOptions,
+                    removeReplace,
+                    ioHelper.EnsureAbsolute(
+                        projectDir,
+                        parseResult.OutputReadme!)
+                    ),
+                null);
+        }
+        
+        private RemoveReplaceSettings? GetRemoveReplaceSettings(string? configPath, List<string> errors, string projectDirectory)
+        {
+            if (string.IsNullOrWhiteSpace(configPath))
+            {
+                return null;
+            }
+
+            string? absoluteConfigPath = configFileService.GetConfigPath(projectDirectory, configPath);
+            if (absoluteConfigPath == null)
+            {
+                errors.Add($"Config file not found: {configPath}");
+                return null;
+            }
+
+            RemoveReplaceSettings? removeReplace = removeReplaceConfigLoader.Load(
+                absoluteConfigPath,
+                out List<string>? loadErrors);
+            if (loadErrors.Count > 0)
+            {
+                errors.AddRange(loadErrors);
+                return null;
+            }
+
+            return removeReplace;
+        }
+
+        private string? GetRepoRef(ReadmeRewriterParseResult parseResult, List<string> errors, string projectDirectory)
         {
             string? repoRef = parseResult.RepoRef;
             if (repoRef == null)
             {
-                string? gitRoot = gitHelper.FindGitRoot(Environment.CurrentDirectory);
+                string? gitRoot = gitHelper.FindGitRoot(projectDirectory);
                 if (gitRoot == null)
                 {
-                    return (null, ["no git root"]);
+                    errors.Add("no git root");
+                    return null;
                 }
 
                 try
@@ -26,49 +91,40 @@ namespace ReadmeRewriterCLI
                 }
                 catch (Exception exception)
                 {
-                    return (null, [exception.Message]);
+                    errors.Add(exception.Message);
+                    return null;
                 }
             }
 
-            RemoveReplaceSettings? removeReplace = null;
-            if (!string.IsNullOrWhiteSpace(parseResult.ConfigPath))
-            {
-                string? configPath = fileService.GetConfigPath(Environment.CurrentDirectory, parseResult.ConfigPath);
-                if (configPath == null)
-                {
-                    return (null, [$"Config file not found: {parseResult.ConfigPath}"]);
-                }
-
-                removeReplace = removeReplaceConfigLoader.Load(
-                    configPath,
-                    out List<string>? loadErrors);
-
-                if (loadErrors.Count > 0)
-                {
-                    return (null, loadErrors);
-                }
-            }
-
-            return (new Options(
-                Environment.CurrentDirectory, // todo - command line argument ?
-                parseResult.RepoUrl!,
-                repoRef,
-                parseResult.ReadmeRelative ?? "README.md",
-                ParseRewriteTagsOptions(parseResult.RewriteTags),
-                removeReplace), null);
+            return repoRef;
         }
 
-        private RewriteTagsOptions ParseRewriteTagsOptions(string? rewriteTags)
+        private  static RewriteTagsOptions GetRewriteTagsOptions(ReadmeRewriterParseResult parseResult, List<string> errors)
         {
-            RewriteTagsOptions rewriteTagsOptions = RewriteTagsOptions.None;
-            if (rewriteTags != null && !Enum.TryParse(rewriteTags, out rewriteTagsOptions))
+            RewriteTagsOptions options = RewriteTagsOptions.None;
+
+            if (parseResult.RemoveHtml == true && parseResult.ErrorOnHtml == true)
             {
-                // todo - should not be aware of --rewrite-tags
-                consoleWriter.WriteWarning($"Could not parse --rewrite-tags '{rewriteTags}', defaulting to None.");
-                rewriteTagsOptions = RewriteTagsOptions.None;
+                errors.Add("Cannot set both RemoveHtml and ErrorOnHtml to true");
+                return options;
             }
 
-            return rewriteTagsOptions;
+            if (parseResult.RemoveHtml == true)
+            {
+                options =  RewriteTagsOptions.RemoveHtml;
+            }
+
+            if (parseResult.ErrorOnHtml == true)
+            {
+                options =  RewriteTagsOptions.ErrorOnHtml;
+            }
+
+            if (parseResult.ExtractDetailsSummary == true)
+            {
+                options |= RewriteTagsOptions.ExtractDetailsContentWithoutSummary;
+            }
+
+            return options;
         }
     }
 }

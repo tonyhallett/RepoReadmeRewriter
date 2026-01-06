@@ -2,6 +2,6 @@
 {
     internal interface IReadmeRewriterCommandLineParser
     {
-        ReadmeRewriterParseResult Parse(string[] args);
+        (IEnumerable<string>? errors, ReadmeRewriterParseResult? result) Parse(IReadOnlyList<string> args);
     }
 }

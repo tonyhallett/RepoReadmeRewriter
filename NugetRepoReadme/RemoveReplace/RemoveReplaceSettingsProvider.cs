@@ -3,7 +3,6 @@ using System.Linq;
 using Microsoft.Build.Framework;
 using NugetRepoReadme.MSBuild;
 using NugetRepoReadme.MSBuildHelpers;
-using NugetRepoReadme.RemoveReplace.Settings;
 using RepoReadmeRewriter.RemoveReplace.Settings;
 
 namespace NugetRepoReadme.RemoveReplace

@@ -1,65 +1,70 @@
-﻿using RepoReadmeRewriter.IOWrapper;
+﻿using System.Diagnostics.CodeAnalysis;
+using RepoReadmeRewriter.IOWrapper;
 using RepoReadmeRewriter.Runner;
 
 namespace ReadmeRewriterCLI
 {
-    internal sealed class Runner(IReadmeRewriterCommandLineParser parser, IConsoleWriter consoleWriter, IOptionsProvider optionsProvider)
+    internal sealed class Runner(
+        IReadmeRewriterCommandLineParser parser,
+        IConsoleWriter consoleWriter,
+        IOptionsProvider optionsProvider,
+        IReadmeRewriterRunner readmeRewriterRunner,
+        IIOHelper ioHelper)
     {
+        [ExcludeFromCodeCoverage]
         public Runner() : this(
             new ReadmeRewriterCommandLineParser(),
             ConsoleWriter.Instance,
             new OptionsProvider(
-                ConsoleWriter.Instance,
                 ConfigFileService.Instance,
                 new GitHelper(),
                 new RemoveReplaceConfigLoader(
                     IOHelper.Instance,
                     ConfigFileService.Instance,
-                    new RemoveReplaceWordsParserWrapper())))
+                    new RemoveReplaceWordsParserWrapper()),
+                IOHelper.Instance),
+            new ReadmeRewriterRunner(),
+            IOHelper.Instance
+            )
         {
         }
 
         public int Run(string[] args)
         {
-            ReadmeRewriterParseResult parseResult = parser.Parse(args);
-            if (parseResult.Errors != null)
+            (IEnumerable<string>? Errors, ReadmeRewriterParseResult? Result) = parser.Parse(args);
+            if (Errors != null)
             {
-                foreach (string error in parseResult.Errors)
+                foreach (string error in Errors)
                 {
-                    consoleWriter.WriteError(error);
+                    consoleWriter.WriteErrorLine(error);
                 }
 
                 return 1;
             }
 
-            (Options? options, IEnumerable<string>? errors) = optionsProvider.Provide(parseResult);
-            if (options == null)
-            {
-                return 1;
-            }
+            (Options? options, IEnumerable<string>? errors) = optionsProvider.Provide(Result!);
 
             if (errors != null)
             {
                 foreach (string error in errors)
                 {
-                    consoleWriter.WriteError(error);
+                    consoleWriter.WriteErrorLine(error);
                 }
 
                 return 1;
             }
 
-            var runner = new ReadmeRewriterRunner();
-            ReadmeRewriterRunnerResult result = runner.Run(
-                options.ProjectDir,
-                options.ReadmeRel,
-                options.RepoUrl,
-                options.RepoRef,
-                options.RewriteTagsOptions,
-                options.RemoveReplaceSettings);
+            ReadmeRewriterRunnerResult result = readmeRewriterRunner.Run(
+                options!.ProjectDir,
+                options!.ReadmeRel,
+                options!.RepoUrl,
+                options!.RepoRef,
+                options!.RewriteTagsOptions,
+                options!.RemoveReplaceSettings);
 
             foreach (string err in result.Errors)
             {
-                consoleWriter.WriteError(err);
+                consoleWriter.WriteErrorLine(err);
             }
 
             if (!result.Success)
@@ -67,7 +72,8 @@ namespace ReadmeRewriterCLI
                 return 1;
             }
 
-            Console.WriteLine(result.OutputReadme);
+            consoleWriter.WriteLine($"Rewritten to {options.OutputReadme}");
+            ioHelper.WriteAllText(options.OutputReadme, result.OutputReadme!);
             return 0;
         }
     }

@@ -6,7 +6,6 @@ using NugetRepoReadme.MSBuild;
 using NugetRepoReadme.MSBuildHelpers;
 using NugetRepoReadme.NugetValidation;
 using NugetRepoReadme.RemoveReplace;
-using NugetRepoReadme.RemoveReplace.Settings;
 using RepoReadmeRewriter.Processing;
 using RepoReadmeRewriter.Runner;
 using InputOutputHelper = RepoReadmeRewriter.IOWrapper.IOHelper;
