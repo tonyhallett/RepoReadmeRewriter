@@ -5,6 +5,7 @@
         string readmeRelative,
         string? configPath,
         string? repoRef,
+        GitRefKind gitRefKind,
         string projectDir,
         string outputReadme,
         bool errorOnHtml,
@@ -19,6 +20,8 @@
         public string? ConfigPath { get; } = configPath;
 
         public string? RepoRef { get; } = repoRef;
+
+        public GitRefKind GitRefKind { get; } = gitRefKind;
 
         public string ProjectDir { get; } = projectDir;
 

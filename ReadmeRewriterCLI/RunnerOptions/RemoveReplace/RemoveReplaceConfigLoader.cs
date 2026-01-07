@@ -12,7 +12,7 @@ namespace ReadmeRewriterCLI.RunnerOptions.RemoveReplace
         IRemoveReplaceWordsParser removeReplaceWordsParser) : IRemoveReplaceConfigLoader
     {
 
-        private class StartEnd(string start, string? end)
+        private sealed class StartEnd(string start, string? end)
         {
             public string Start { get; } = start;
             public string? End { get; } = end;
@@ -92,7 +92,7 @@ namespace ReadmeRewriterCLI.RunnerOptions.RemoveReplace
             return new StartEnd(startValue, endValue);
         }
 
-        private class FileRemovalOrReplacement(StartEndCommentOrRegex startEndCommentOrRegex, string replacementTextFilePath)
+        private sealed class FileRemovalOrReplacement(StartEndCommentOrRegex startEndCommentOrRegex, string replacementTextFilePath)
         {
             public string Start { get; } = startEndCommentOrRegex.Start;
 
@@ -103,7 +103,7 @@ namespace ReadmeRewriterCLI.RunnerOptions.RemoveReplace
             public string ReplacementTextFilePath { get; } = replacementTextFilePath;
         }
 
-        private class StartEndCommentOrRegex(StartEnd startEnd, CommentOrRegex commentOrRegex)
+        private sealed class StartEndCommentOrRegex(StartEnd startEnd, CommentOrRegex commentOrRegex)
         {
             public string Start { get; } = startEnd.Start;
 

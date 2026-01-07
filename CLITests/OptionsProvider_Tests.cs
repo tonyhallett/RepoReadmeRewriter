@@ -28,6 +28,7 @@ namespace CLITests
                     "README.md",
                     null,
                     null,
+                    GitRefKind.Auto,
                     nonExistentDir,
                     "output/README.md",
                     false,
@@ -63,6 +64,7 @@ namespace CLITests
                     "README.md",
                     null,
                     "reporef",
+                    GitRefKind.Auto,
                     Environment.CurrentDirectory,
                     "output/README.md",
                     true,
@@ -98,6 +100,7 @@ namespace CLITests
                     "README.md",
                     null,
                     "reporef",
+                    GitRefKind.Auto,
                     Environment.CurrentDirectory,
                     "output/README.md",
                     errorOnHtml,
@@ -130,6 +133,7 @@ namespace CLITests
                     "README.md",
                     null,
                     "reporef",
+                    GitRefKind.Auto,
                     projectDir,
                     outputReadme,
                     false,
@@ -154,7 +158,7 @@ namespace CLITests
 
             (Options? options, IEnumerable<string>? errors) = optionsProvider.Provide(
                 new ReadmeRewriterParseResult(
-                    "http:www.example.com/repo.git", "README.md", null, "reporef", Environment.CurrentDirectory, "output/README.md", false, false, false));
+                    "http:www.example.com/repo.git", "README.md", null, "reporef", GitRefKind.Auto, Environment.CurrentDirectory, "output/README.md", false, false, false));
 
             Assert.Multiple(() =>
             {
@@ -178,7 +182,7 @@ namespace CLITests
 
             (Options? options, IEnumerable<string>? errors) result = optionsProvider.Provide(
                 new ReadmeRewriterParseResult(
-                    "http:www.example.com/repo.git", "README.md", configPath, "reporef", projectDir, "output/README.md", false, false, false));
+                    "http:www.example.com/repo.git", "README.md", configPath, "reporef", GitRefKind.Auto, projectDir, "output/README.md", false, false, false));
 
             mockConfigFileService.Verify(m => m.GetConfigPath(projectDir, configPath));
             AssertError(result, $"Config file not found: {configPath}");
@@ -201,7 +205,7 @@ namespace CLITests
 
             (Options? options, IEnumerable<string>? errors) = optionsProvider.Provide(
                 new ReadmeRewriterParseResult(
-                    "http:www.example.com/repo.git", "README.md", "configPath", "reporef", "projectDir", "output/README.md", false, false, false));
+                    "http:www.example.com/repo.git", "README.md", "configPath", "reporef", GitRefKind.Auto, "projectDir", "output/README.md", false, false, false));
 
             Assert.Multiple(() =>
             {
@@ -228,7 +232,7 @@ namespace CLITests
 
             (Options? options, IEnumerable<string>? errors) = optionsProvider.Provide(
                 new ReadmeRewriterParseResult(
-                    "http:www.example.com/repo.git", "README.md", "configPath", "reporef", "projectDir", "output/README.md", false, false, false));
+                    "http:www.example.com/repo.git", "README.md", "configPath", "reporef", GitRefKind.Auto, "projectDir", "output/README.md", false, false, false));
 
             Assert.Multiple(() =>
             {
@@ -248,7 +252,7 @@ namespace CLITests
         {
             var optionsProvider = new OptionsProvider(new Mock<IConfigFileService>().Object, new Mock<IGitHelper>().Object, new Mock<IRemoveReplaceConfigLoader>().Object, SetupProjectDirExists().Object);
             (Options? options, IEnumerable<string>? errors) = optionsProvider.Provide(
-                new ReadmeRewriterParseResult("http:www.example.com/repo.git", "README.md", null, "reporef", Environment.CurrentDirectory, "output/README.md", false, false, false));
+                new ReadmeRewriterParseResult("http:www.example.com/repo.git", "README.md", null, "reporef", GitRefKind.Auto, Environment.CurrentDirectory, "output/README.md", false, false, false));
             Assert.Multiple(() =>
             {
                 Assert.That(errors, Is.Null);
@@ -256,7 +260,171 @@ namespace CLITests
             });
         }
 
-        // getting the repo ref when not provided
+        [TestCase(GitRefKind.TagOrSha)]
+        [TestCase(GitRefKind.BranchName)]
+        [TestCase(GitRefKind.ShortCommitSha)]
+        [TestCase(GitRefKind.CommitSha)]
+        [TestCase(GitRefKind.Auto)]
+        public void Should_Use_Selected_Git_Helper_Method_When_Ref_Not_Provided(GitRefKind gitRefKind)
+        {
+            var mockGitHelper = new Mock<IGitHelper>();
+            const string projectDir = "projectDir";
+            _ = mockGitHelper.Setup(m => m.FindGitRoot(projectDir)).Returns("root");
+            _ = mockGitHelper.Setup(m => m.TagOrSha("root")).Returns("tag");
+            _ = mockGitHelper.Setup(m => m.BranchName("root")).Returns("branch");
+            _ = mockGitHelper.Setup(m => m.ShortCommitSha("root")).Returns("short");
+            _ = mockGitHelper.Setup(m => m.CommitSha("root")).Returns("commit");
+
+            var optionsProvider = new OptionsProvider(
+                new Mock<IConfigFileService>().Object,
+                mockGitHelper.Object,
+                new Mock<IRemoveReplaceConfigLoader>().Object,
+                SetupProjectDirExists().Object);
+
+            (Options? options, IEnumerable<string>? errors) = optionsProvider.Provide(
+                new ReadmeRewriterParseResult(
+                    "http:www.example.com/repo.git",
+                    "README.md",
+                    null,
+                    null,
+                    gitRefKind,
+                    projectDir,
+                    "output/README.md",
+                    false,
+                    false,
+                    false));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(errors, Is.Null);
+                Assert.That(options!.RepoRef, Is.Not.Null);
+
+                switch (gitRefKind)
+                {
+                    case GitRefKind.TagOrSha:
+                        mockGitHelper.Verify(m => m.TagOrSha("root"));
+                        Assert.That(options.RepoRef, Is.EqualTo("tag"));
+                        break;
+                    case GitRefKind.BranchName:
+                        mockGitHelper.Verify(m => m.BranchName("root"));
+                        Assert.That(options.RepoRef, Is.EqualTo("branch"));
+                        break;
+                    case GitRefKind.ShortCommitSha:
+                        mockGitHelper.Verify(m => m.ShortCommitSha("root"));
+                        Assert.That(options.RepoRef, Is.EqualTo("short"));
+                        break;
+                    case GitRefKind.CommitSha:
+                        mockGitHelper.Verify(m => m.CommitSha("root"));
+                        Assert.That(options.RepoRef, Is.EqualTo("commit"));
+                        break;
+                    default:
+                        mockGitHelper.Verify(m => m.CommitSha("root"));
+                        Assert.That(options.RepoRef, Is.EqualTo("commit"));
+                        break;
+                }
+            });
+        }
+
+        [Test]
+        public void Should_Error_If_RepoRef_Cannot_Be_Obtained()
+        {
+            var mockGitHelper = new Mock<IGitHelper>();
+            const string projectDir = "projectDir";
+            _ = mockGitHelper.Setup(m => m.FindGitRoot(projectDir)).Returns("root");
+
+            var optionsProvider = new OptionsProvider(
+                new Mock<IConfigFileService>().Object,
+                mockGitHelper.Object,
+                new Mock<IRemoveReplaceConfigLoader>().Object,
+                SetupProjectDirExists().Object);
+
+            (Options? options, IEnumerable<string>? errors) = optionsProvider.Provide(
+                new ReadmeRewriterParseResult(
+                    "http:www.example.com/repo.git",
+                    "README.md",
+                    null,
+                    null,
+                    GitRefKind.CommitSha,
+                    projectDir,
+                    "output/README.md",
+                    false,
+                    false,
+                    false));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(options, Is.Null);
+                Assert.That(errors!.Single(), Is.EqualTo("Unable to obtain repo reference"));
+            });
+        }
+
+        [Test]
+        public void Should_Default_The_RepoRef_To_Master_When_Auto_And_CommitSha_Null()
+        {
+            var mockGitHelper = new Mock<IGitHelper>();
+            const string projectDir = "projectDir";
+            _ = mockGitHelper.Setup(m => m.FindGitRoot(projectDir)).Returns("root");
+
+            var optionsProvider = new OptionsProvider(
+                new Mock<IConfigFileService>().Object,
+                mockGitHelper.Object,
+                new Mock<IRemoveReplaceConfigLoader>().Object,
+                SetupProjectDirExists().Object);
+
+            (Options? options, IEnumerable<string>? errors) = optionsProvider.Provide(
+                new ReadmeRewriterParseResult(
+                    "http:www.example.com/repo.git",
+                    "README.md",
+                    null,
+                    null,
+                    GitRefKind.Auto,
+                    projectDir,
+                    "output/README.md",
+                    false,
+                    false,
+                    false));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(errors, Is.Null);
+                Assert.That(options!.RepoRef, Is.EqualTo("master"));
+            });
+        }
+
+        [Test]
+        public void Should_Error_If_GitHelper_Throws()
+        {
+            var mockGitHelper = new Mock<IGitHelper>();
+            const string projectDir = "projectDir";
+            _ = mockGitHelper.Setup(m => m.FindGitRoot(projectDir)).Returns("root");
+            _ = mockGitHelper.Setup(m => m.CommitSha("root")).Throws(new Exception("git error"));
+
+            var optionsProvider = new OptionsProvider(
+                new Mock<IConfigFileService>().Object,
+                mockGitHelper.Object,
+                new Mock<IRemoveReplaceConfigLoader>().Object,
+                SetupProjectDirExists().Object);
+
+            (Options? options, IEnumerable<string>? errors) = optionsProvider.Provide(
+                new ReadmeRewriterParseResult(
+                    "http:www.example.com/repo.git",
+                    "README.md",
+                    null,
+                    null,
+                    GitRefKind.Auto,
+                    projectDir,
+                    "output/README.md",
+                    false,
+                    false,
+                    false));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(errors!.Single(), Is.EqualTo("git error"));
+                Assert.That(options, Is.Null);
+            });
+        }
+        
         [Test]
         public void Should_Error_If_Cannot_Find_Git_Root()
         {
@@ -274,6 +442,7 @@ namespace CLITests
                     "README.md",
                     null,
                     null,
+                    GitRefKind.Auto,
                     projectDir,
                     "output/README.md",
                     false,
@@ -287,7 +456,5 @@ namespace CLITests
                 Assert.That(options, Is.Null);
             });
         }
-
-        // more consideration on args for invoking the githelper
     }
 }

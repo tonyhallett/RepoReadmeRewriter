@@ -8,22 +8,12 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Extensions
         private DefinedStringOption(string name, params string[] aliases)
         : base(name, aliases) { }
 
-        public static DefinedStringOption CreateRequired(string name, params string[] aliases)
-        {
-            var option = new DefinedStringOption(name, aliases)
-            {
-                Required = true
-            };
-            return option;
-        }
+        public static DefinedStringOption CreateRequired(string name, params string[] aliases) => new(name, aliases) { Required = true };
 
         public static DefinedStringOption CreateDefault(string name, Func<ArgumentResult, string> defaultValueFactory, params string[] aliases)
-        {
-            var option = new DefinedStringOption(name, aliases)
+            => new(name, aliases)
             {
                 DefaultValueFactory = defaultValueFactory
             };
-            return option;
-        }
     }
 }

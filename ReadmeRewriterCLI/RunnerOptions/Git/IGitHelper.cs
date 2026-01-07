@@ -2,11 +2,11 @@
 {
     internal interface IGitHelper
     {
+        string? FindGitRoot(string startDirectory);
+
         string BranchName(string repoRoot);
 
         string CommitSha(string repoRoot);
-
-        string? FindGitRoot(string startDirectory);
 
         string ShortCommitSha(string repoRoot);
 

@@ -1,4 +1,5 @@
-﻿using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing;
+﻿using System.Diagnostics.CodeAnalysis;
+using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing;
 using ReadmeRewriterCLI.RunnerOptions.Config;
 using ReadmeRewriterCLI.RunnerOptions.Git;
 using ReadmeRewriterCLI.RunnerOptions.RemoveReplace;
@@ -15,6 +16,7 @@ namespace ReadmeRewriterCLI.RunnerOptions
         IIOHelper ioHelper
         ) : IOptionsProvider
     {
+        [ExcludeFromCodeCoverage]
         public OptionsProvider() : this(
             ConfigFileService.Instance,
             new GitHelper(),
@@ -22,6 +24,7 @@ namespace ReadmeRewriterCLI.RunnerOptions
             IOHelper.Instance)
         {
         }
+
         public (Options? options, IEnumerable<string>? errors) Provide(ReadmeRewriterParseResult parseResult)
         {
             string projectDir = parseResult.ProjectDir;
@@ -86,28 +89,46 @@ namespace ReadmeRewriterCLI.RunnerOptions
 
         private string? GetRepoRef(ReadmeRewriterParseResult parseResult, List<string> errors, string projectDirectory)
         {
-            string? repoRef = parseResult.RepoRef;
-            if (repoRef == null)
+            if (parseResult.RepoRef != null)
             {
-                string? gitRoot = gitHelper.FindGitRoot(projectDirectory);
-                if (gitRoot == null)
-                {
-                    errors.Add("no git root");
-                    return null;
-                }
-
-                try
-                {
-                    repoRef = gitHelper.CommitSha(gitRoot) ?? "master";
-                }
-                catch (Exception exception)
-                {
-                    errors.Add(exception.Message);
-                    return null;
-                }
+                return parseResult.RepoRef;
             }
 
-            return repoRef;
+            string? gitRoot = gitHelper.FindGitRoot(projectDirectory);
+            if (gitRoot == null)
+            {
+                errors.Add("no git root");
+                return null;
+            }
+
+            try
+            {
+                string? repoRef = parseResult.GitRefKind switch
+                {
+                    GitRefKind.TagOrSha => gitHelper.TagOrSha(gitRoot),
+                    GitRefKind.BranchName => gitHelper.BranchName(gitRoot),
+                    GitRefKind.ShortCommitSha => gitHelper.ShortCommitSha(gitRoot),
+                    GitRefKind.CommitSha => gitHelper.CommitSha(gitRoot),
+                    _ => gitHelper.CommitSha(gitRoot) // default to commit sha
+                };
+
+                if (string.IsNullOrWhiteSpace(repoRef) && parseResult.GitRefKind == GitRefKind.Auto)
+                {
+                    repoRef = "master";
+                }
+
+                if (repoRef == null)
+                {
+                    errors.Add("Unable to obtain repo reference");
+                }
+
+                return repoRef;
+            }
+            catch (Exception exception)
+            {
+                errors.Add(exception.Message);
+                return null;
+            }
         }
 
         private static RewriteTagsOptions GetRewriteTagsOptions(ReadmeRewriterParseResult parseResult, List<string> errors)

@@ -1,4 +1,5 @@
-﻿using System.CommandLine.Parsing;
+﻿using System.Collections;
+using System.CommandLine.Parsing;
 using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing;
 
 namespace CLITests
@@ -23,10 +24,7 @@ namespace CLITests
         [Test]
         public void Should_Have_Correct_Default_Values_When_Only_Required_Options_Supplied()
         {
-            const string repoUrl = "http:www.example.com/repo.git";
-            const string outputReadme = "output/README.md";
-            IEnumerable<string> args = CommandLineParser.SplitCommandLine($"{ReadmeRewriterCommandLineParser.s_repoUrlOption.Name} {repoUrl} {ReadmeRewriterCommandLineParser.s_outputReadmeOption.Name} {outputReadme}");
-            (IEnumerable<string>? errors, ReadmeRewriterParseResult? result) = new ReadmeRewriterCommandLineParser().Parse([.. args]);
+            (IEnumerable<string>? errors, ReadmeRewriterParseResult? result) = new ReadmeRewriterCommandLineParser().Parse(ArgsWithRequired(""));
 
             Assert.Multiple(() =>
             {
@@ -44,7 +42,51 @@ namespace CLITests
                 Assert.That(result.ProjectDir, Is.EqualTo(Environment.CurrentDirectory));
                 Assert.That(result.ConfigPath, Is.Null);
                 Assert.That(result.RepoRef, Is.Null);
+                Assert.That(result.GitRefKind, Is.EqualTo(GitRefKind.Auto));
             });
+        }
+
+        [TestCaseSource(typeof(GitRefKindSource))]
+        public void Should_Parse_GitRefKind_When_Specified(string gh, GitRefKind expectedRefKind)
+        {
+            (IEnumerable<string>? errors, ReadmeRewriterParseResult? result) = GhOptionTest(gh);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(errors, Is.Null);
+                Assert.That(result!.GitRefKind, Is.EqualTo(expectedRefKind));
+            });
+        }
+
+        internal sealed class GitRefKindSource : IEnumerable
+        {
+            private readonly IEnumerable<object[]> _cases;
+
+            public GitRefKindSource() => _cases = ReadmeRewriterCommandLineParser.s_gitRefKindLookup.SelectMany(de => de.Value.Select(v => new object[] { v, de.Key }));
+
+            public IEnumerator GetEnumerator() => _cases.GetEnumerator();
+        }
+
+        [Test]
+        public void Should_Error_For_Unknown_Gh_Argument()
+        {
+            (IEnumerable<string>? errors, ReadmeRewriterParseResult? result) = GhOptionTest("bad");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Null);
+                Assert.That(errors!.Single(), Does.StartWith("Argument 'bad' not recognized. Must be one of"));
+            });
+        }
+
+        private static (IEnumerable<string>? errors, ReadmeRewriterParseResult? result) GhOptionTest(string ghArg)
+            => new ReadmeRewriterCommandLineParser().Parse(ArgsWithRequired($"--gh {ghArg}"));
+
+        private static IReadOnlyList<string> ArgsWithRequired(string other)
+        {
+            const string repoUrl = "http:www.example.com/repo.git";
+            const string outputReadme = "output/README.md";
+            return [.. CommandLineParser.SplitCommandLine($"{ReadmeRewriterCommandLineParser.s_repoUrlOption.Name} {repoUrl} {ReadmeRewriterCommandLineParser.s_outputReadmeOption.Name} {outputReadme} {other}")];
         }
     }
 }

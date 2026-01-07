@@ -37,7 +37,7 @@ namespace CLITests
         {
             string[] args = ["arg1", "arg2"];
             var mockParser = new Mock<IReadmeRewriterCommandLineParser>();
-            ReadmeRewriterParseResult parserResult = new("repourl", "", null, null, "", "", false, false, false);
+            ReadmeRewriterParseResult parserResult = new("repourl", "", null, null, GitRefKind.Auto, "", "", false, false, false);
             mockParser.Setup(m => m.Parse(args)).Returns((null, parserResult)).Verifiable();
             var mockOptionsProvider = new Mock<IOptionsProvider>();
             _ = mockOptionsProvider.Setup(m => m.Provide(parserResult)).Returns((null, ["error1", "error2"]));
@@ -63,7 +63,7 @@ namespace CLITests
         {
             string[] args = ["arg1", "arg2"];
             var mockParser = new Mock<IReadmeRewriterCommandLineParser>();
-            ReadmeRewriterParseResult parserResult = new("repourl", "", null, null, "", "", false, false, false);
+            ReadmeRewriterParseResult parserResult = new("repourl", "", null, null, GitRefKind.Auto, "", "", false, false, false);
             mockParser.Setup(m => m.Parse(args)).Returns((null, parserResult)).Verifiable();
             var mockOptionsProvider = new Mock<IOptionsProvider>();
             var options = new Options("projectdir", "repourl", "reporef", "readmerel", RepoReadmeRewriter.Processing.RewriteTagsOptions.ErrorOnHtml, null, "outputreadme");
