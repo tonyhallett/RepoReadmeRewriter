@@ -38,11 +38,11 @@ namespace ReadmeRewriterCLI.RunnerOptions
 
             RewriteTagsOptions rewriteTagsOptions = GetRewriteTagsOptions(parseResult, errors);
 
-            if (errors.Count >0)
+            if (errors.Count > 0)
             {
                 return (null, errors);
             }
-            
+
             return (
                 new Options(
                     projectDir,
@@ -57,7 +57,7 @@ namespace ReadmeRewriterCLI.RunnerOptions
                     ),
                 null);
         }
-        
+
         private RemoveReplaceSettings? GetRemoveReplaceSettings(string? configPath, List<string> errors, string projectDirectory)
         {
             if (string.IsNullOrWhiteSpace(configPath))
@@ -110,7 +110,7 @@ namespace ReadmeRewriterCLI.RunnerOptions
             return repoRef;
         }
 
-        private  static RewriteTagsOptions GetRewriteTagsOptions(ReadmeRewriterParseResult parseResult, List<string> errors)
+        private static RewriteTagsOptions GetRewriteTagsOptions(ReadmeRewriterParseResult parseResult, List<string> errors)
         {
             RewriteTagsOptions options = RewriteTagsOptions.None;
 
@@ -122,12 +122,12 @@ namespace ReadmeRewriterCLI.RunnerOptions
 
             if (parseResult.RemoveHtml == true)
             {
-                options =  RewriteTagsOptions.RemoveHtml;
+                options = RewriteTagsOptions.RemoveHtml;
             }
 
             if (parseResult.ErrorOnHtml == true)
             {
-                options =  RewriteTagsOptions.ErrorOnHtml;
+                options = RewriteTagsOptions.ErrorOnHtml;
             }
 
             if (parseResult.ExtractDetailsSummary == true)

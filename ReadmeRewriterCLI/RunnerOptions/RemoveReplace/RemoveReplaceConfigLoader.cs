@@ -67,7 +67,7 @@ namespace ReadmeRewriterCLI.RunnerOptions.RemoveReplace
 
         private static StartEnd? GetStartEnd(string? start, string? end, string errorPrefix, List<string> loadErrors)
         {
-            string startValue =start?.Trim() ?? string.Empty;
+            string startValue = start?.Trim() ?? string.Empty;
 
             if (string.IsNullOrWhiteSpace(startValue))
             {
@@ -92,13 +92,24 @@ namespace ReadmeRewriterCLI.RunnerOptions.RemoveReplace
             return new StartEnd(startValue, endValue);
         }
 
-        private class FileRemovalOrReplacement(StartEnd startEnd, CommentOrRegex commentOrRegex, string replacementTextFilePath)
+        private class FileRemovalOrReplacement(StartEndCommentOrRegex startEndCommentOrRegex, string replacementTextFilePath)
         {
-            public StartEnd StartEnd { get; } = startEnd;
+            public string Start { get; } = startEndCommentOrRegex.Start;
 
-            public CommentOrRegex CommentOrRegex { get; } = commentOrRegex;
+            public string? End { get; } = startEndCommentOrRegex.End;
+
+            public CommentOrRegex CommentOrRegex { get; } = startEndCommentOrRegex.CommentOrRegex;
 
             public string ReplacementTextFilePath { get; } = replacementTextFilePath;
+        }
+
+        private class StartEndCommentOrRegex(StartEnd startEnd, CommentOrRegex commentOrRegex)
+        {
+            public string Start { get; } = startEnd.Start;
+
+            public string? End { get; } = startEnd.End;
+
+            public CommentOrRegex CommentOrRegex { get; } = commentOrRegex;
         }
 
         private List<RemovalOrReplacement> ParseRemovalsOrReplacements(IEnumerable<RemovalOrReplacementConfig>? configs, List<string> loadErrors)
@@ -109,42 +120,24 @@ namespace ReadmeRewriterCLI.RunnerOptions.RemoveReplace
                 return removalsOrReplacements;
             }
 
-            int counter = -1;
             List<FileRemovalOrReplacement> fileRemovalOrReplacements = [];
-            foreach (RemovalOrReplacementConfig config in configs)
+            foreach ((RemovalOrReplacementConfig config, int counter) in configs.Select((config, index) => (config, index)))
             {
-                counter++;
                 string errorPrefix = $"removalsOrReplacements[{counter}]";
-                StartEnd? startEnd = GetStartEnd(config.Start, config.End, errorPrefix, loadErrors);
-                CommentOrRegex? parsedCommentOrRegex = null;
-                if (!Enum.TryParse(config.CommentOrRegex, true, out CommentOrRegex commentOrRegex))
-                {
-                    loadErrors.Add($"{errorPrefix}.commentOrRegex unsupported '{config.CommentOrRegex}'.");
-                }
-                else
-                {
-                    parsedCommentOrRegex = commentOrRegex;
-                }
+                StartEndCommentOrRegex? validated = ValidateStartEndCommentOrRegex(config, errorPrefix, loadErrors);
 
                 if (config.ReplacementFromFile == true)
                 {
                     string? resolvedReplacementTextFilePath = GetResolvedReplacementTextFilePath(config, loadErrors, errorPrefix);
-                    if(resolvedReplacementTextFilePath == null)
+                    if (resolvedReplacementTextFilePath != null && validated != null)
                     {
-                        continue;
-                    }
-
-                    if (parsedCommentOrRegex.HasValue && startEnd != null)
-                    {
-                        fileRemovalOrReplacements.Add(new FileRemovalOrReplacement(startEnd, parsedCommentOrRegex.Value, resolvedReplacementTextFilePath));
+                        fileRemovalOrReplacements.Add(new FileRemovalOrReplacement(validated, resolvedReplacementTextFilePath));
                     }
                 }
-                else
+                else if (validated != null)
                 {
-                    if (parsedCommentOrRegex.HasValue && startEnd != null)
-                    {
-                        removalsOrReplacements.Add(new RemovalOrReplacement(parsedCommentOrRegex.Value, startEnd.Start, startEnd.End, config.ReplacementText));
-                    }
+                    removalsOrReplacements.Add(
+                        new RemovalOrReplacement(validated.CommentOrRegex, validated.Start, validated.End, config.ReplacementText));
                 }
             }
 
@@ -153,12 +146,30 @@ namespace ReadmeRewriterCLI.RunnerOptions.RemoveReplace
                 removalsOrReplacements.AddRange(
                     fileRemovalOrReplacements.Select(frr => new RemovalOrReplacement(
                         frr.CommentOrRegex,
-                        frr.StartEnd.Start,
-                        frr.StartEnd.End,
+                        frr.Start,
+                        frr.End,
                         ioHelper.ReadAllText(frr.ReplacementTextFilePath))));
             }
-            
+
             return removalsOrReplacements;
+        }
+
+        private static StartEndCommentOrRegex? ValidateStartEndCommentOrRegex(RemovalOrReplacementConfig config, string errorPrefix, List<string> loadErrors)
+        {
+            StartEnd? startEnd = GetStartEnd(config.Start, config.End, errorPrefix, loadErrors);
+            CommentOrRegex? parsedCommentOrRegex = null;
+            if (!Enum.TryParse(config.CommentOrRegex, true, out CommentOrRegex commentOrRegex))
+            {
+                loadErrors.Add($"{errorPrefix}.commentOrRegex unsupported '{config.CommentOrRegex}'.");
+            }
+            else
+            {
+                parsedCommentOrRegex = commentOrRegex;
+            }
+
+            return startEnd != null && parsedCommentOrRegex.HasValue
+                ? new StartEndCommentOrRegex(startEnd, parsedCommentOrRegex.Value)
+                : null;
         }
 
         private string? GetResolvedReplacementTextFilePath(RemovalOrReplacementConfig config, List<string> loadErrors, string errorPrefix)

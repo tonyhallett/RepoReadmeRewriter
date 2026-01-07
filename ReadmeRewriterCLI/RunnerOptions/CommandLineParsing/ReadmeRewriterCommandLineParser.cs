@@ -53,7 +53,7 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing
             Description = "Path to JSON remove/replace settings file (see CLI config schema)"
         };
 
-        
+
 
         public (IEnumerable<string>? errors, ReadmeRewriterParseResult? result) Parse(IReadOnlyList<string> args)
         {
@@ -74,7 +74,7 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing
 
             string? configPath = parseResult.GetValue(s_configOption);
             string projectDir = parseResult.GetValue(s_projectDirArg)!;
-            
+
             return (null, new ReadmeRewriterParseResult(
                 repoUrl,
                 readmeRel,

@@ -51,7 +51,7 @@ namespace CLITests
             SetupAbsoluteAndExists(ProjectDir, configFilePath, ProjectRelConfigPath, exists);
             _ = _mockIOHelper.Setup(m => m.GetDirectoryName(ProjectRelConfigPath)).Returns(canGetDirectoryName ? ConfigDir : null);
 
-            return  _configFileService.GetConfigPath(ProjectDir, configFilePath);
+            return _configFileService.GetConfigPath(ProjectDir, configFilePath);
         }
 
         [Test]
@@ -89,7 +89,7 @@ namespace CLITests
         {
             string aConfigFilePath = "aconfigfilepath";
 
-            SetupAbsoluteAndExists(ConfigDir, aConfigFilePath,  ConfigRelFilePath, configRelativeFileExists);
+            SetupAbsoluteAndExists(ConfigDir, aConfigFilePath, ConfigRelFilePath, configRelativeFileExists);
             SetupAbsoluteAndExists(ProjectDir, aConfigFilePath, ProjectRelFilePath, projectRelativeFileExists);
 
             _ = GetConfigPath(true);

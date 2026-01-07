@@ -6,7 +6,7 @@ namespace ReadmeRewriterCLI.RunnerOptions.RemoveReplace
     [ExcludeFromCodeCoverage]
     internal sealed class RemoveReplaceConfigDeserializer : IRemoveReplaceConfigDeserializer
     {
-        
+
         private static readonly JsonSerializerOptions s_cachedJsonSerializerOptions = new()
         {
             PropertyNameCaseInsensitive = true,

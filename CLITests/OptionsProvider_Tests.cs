@@ -76,7 +76,7 @@ namespace CLITests
             });
         }
 
-        [TestCase(false,false, false,RewriteTagsOptions.None)]
+        [TestCase(false, false, false, RewriteTagsOptions.None)]
         [TestCase(true, false, false, RewriteTagsOptions.ErrorOnHtml)]
         [TestCase(false, true, false, RewriteTagsOptions.RemoveHtml)]
         [TestCase(false, false, true, RewriteTagsOptions.ExtractDetailsContentWithoutSummary)]
@@ -169,7 +169,7 @@ namespace CLITests
             string projectDir = "projectDir";
             string configPath = "configPath";
             var mockConfigFileService = new Mock<IConfigFileService>();
-            
+
             var optionsProvider = new OptionsProvider(
                 mockConfigFileService.Object,
                 new Mock<IGitHelper>().Object,
@@ -178,7 +178,7 @@ namespace CLITests
 
             (Options? options, IEnumerable<string>? errors) result = optionsProvider.Provide(
                 new ReadmeRewriterParseResult(
-                    "http:www.example.com/repo.git", "README.md", configPath, "reporef",projectDir, "output/README.md", false, false, false));
+                    "http:www.example.com/repo.git", "README.md", configPath, "reporef", projectDir, "output/README.md", false, false, false));
 
             mockConfigFileService.Verify(m => m.GetConfigPath(projectDir, configPath));
             AssertError(result, $"Config file not found: {configPath}");
@@ -199,7 +199,7 @@ namespace CLITests
                mockRemoveReplaceConfigLoader.Object,
                 SetupProjectDirExists().Object);
 
-            (Options? options, IEnumerable<string>? errors)  = optionsProvider.Provide(
+            (Options? options, IEnumerable<string>? errors) = optionsProvider.Provide(
                 new ReadmeRewriterParseResult(
                     "http:www.example.com/repo.git", "README.md", "configPath", "reporef", "projectDir", "output/README.md", false, false, false));
 

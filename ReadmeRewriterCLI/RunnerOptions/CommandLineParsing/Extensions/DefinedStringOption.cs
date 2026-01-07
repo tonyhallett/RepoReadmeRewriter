@@ -6,7 +6,7 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Extensions
     internal sealed class DefinedStringOption : Option<string>
     {
         private DefinedStringOption(string name, params string[] aliases)
-        : base(name, aliases) {}
+        : base(name, aliases) { }
 
         public static DefinedStringOption CreateRequired(string name, params string[] aliases)
         {

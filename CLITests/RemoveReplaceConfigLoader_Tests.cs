@@ -44,7 +44,6 @@ namespace CLITests
             });
         }
 
-        
         [Test]
         public void Should_Have_Null_RemoveReplaceSettings_And_Error_When_Config_Without_Configuration()
         {
@@ -138,7 +137,7 @@ namespace CLITests
 
                 Assert.That(settings!.RemoveReplaceWords, Is.Empty);
                 Assert.That(settings!.RemovalsOrReplacements, Is.Empty);
-               
+
             });
         }
 
@@ -230,12 +229,12 @@ namespace CLITests
                     End = "end",
                     CommentOrRegex = "unsupported"
                 },
-                
+
             ]);
             Assert.Multiple(() =>
             {
                 Assert.That(settings, Is.Null);
-                Assert.That(errors.Single, Is.EqualTo( "removalsOrReplacements[0].commentOrRegex unsupported 'unsupported'."));
+                Assert.That(errors.Single, Is.EqualTo("removalsOrReplacements[0].commentOrRegex unsupported 'unsupported'."));
             });
         }
 
@@ -259,7 +258,7 @@ namespace CLITests
             Assert.Multiple(() =>
             {
                 Assert.That(errors, Is.Empty);
-                List<RemovalOrReplacement> removalsOrReplacements  = settings!.RemovalsOrReplacements;
+                List<RemovalOrReplacement> removalsOrReplacements = settings!.RemovalsOrReplacements;
                 Assert.That(removalsOrReplacements, Has.Count.EqualTo(2));
                 Assert.That(removalsOrReplacements[0].Start, Is.EqualTo("start"));
                 Assert.That(removalsOrReplacements[0].End, Is.EqualTo("end"));
@@ -298,7 +297,7 @@ namespace CLITests
         {
             string replacementFilePath = "path/to/replacement.txt";
             var mockConfigFileService = new Mock<IConfigFileService>();
-            
+
             (RemoveReplaceSettings? settings, List<string> errors) = ParseRemovalOrReplacements(
             [
                 new() {
@@ -338,7 +337,6 @@ namespace CLITests
                 },
             ], mockConfigFileService.Object, mockIOHelper.Object);
 
-            
             Assert.Multiple(() =>
             {
                 Assert.That(errors, Is.Empty);
@@ -363,7 +361,6 @@ namespace CLITests
                 "badPath2"
             ], mockConfigFileService.Object, new Mock<IIOHelper>(MockBehavior.Strict).Object);
 
-            
             Assert.Multiple(() =>
             {
                 Assert.That(settings, Is.Null);
@@ -397,7 +394,7 @@ namespace CLITests
             [
                 "goodPath",
                 "goodPath2"
-            ], mockConfigFileService.Object,mockIOHelper.Object, mockRemoveReplaceWordsParser.Object);
+            ], mockConfigFileService.Object, mockIOHelper.Object, mockRemoveReplaceWordsParser.Object);
 
             // should not ask for config if has errored or load at all
 

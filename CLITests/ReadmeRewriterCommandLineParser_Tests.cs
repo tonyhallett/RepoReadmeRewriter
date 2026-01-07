@@ -9,7 +9,7 @@ namespace CLITests
         public void Should_Have_Errors_When_Do_Not_Supply_Required_Options()
         {
             (IEnumerable<string>? errors, ReadmeRewriterParseResult? result) = new ReadmeRewriterCommandLineParser().Parse([]);
-            
+
             List<string> errorList = [.. errors!];
             Assert.Multiple(() =>
             {
