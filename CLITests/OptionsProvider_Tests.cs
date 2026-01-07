@@ -1,5 +1,8 @@
 ﻿using Moq;
-using ReadmeRewriterCLI;
+using ReadmeRewriterCLI.RunnerOptions;
+using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing;
+using ReadmeRewriterCLI.RunnerOptions.Config;
+using ReadmeRewriterCLI.RunnerOptions.Git;
 using RepoReadmeRewriter.IOWrapper;
 using RepoReadmeRewriter.Processing;
 using RepoReadmeRewriter.RemoveReplace.Settings;

@@ -1,8 +1,12 @@
-﻿using RepoReadmeRewriter.IOWrapper;
+﻿using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing;
+using ReadmeRewriterCLI.RunnerOptions.Config;
+using ReadmeRewriterCLI.RunnerOptions.Git;
+using ReadmeRewriterCLI.RunnerOptions.RemoveReplace;
+using RepoReadmeRewriter.IOWrapper;
 using RepoReadmeRewriter.Processing;
 using RepoReadmeRewriter.RemoveReplace.Settings;
 
-namespace ReadmeRewriterCLI
+namespace ReadmeRewriterCLI.RunnerOptions
 {
     internal sealed class OptionsProvider(
         IConfigFileService configFileService,
@@ -11,6 +15,13 @@ namespace ReadmeRewriterCLI
         IIOHelper ioHelper
         ) : IOptionsProvider
     {
+        public OptionsProvider() : this(
+            ConfigFileService.Instance,
+            new GitHelper(),
+            new RemoveReplaceConfigLoader(),
+            IOHelper.Instance)
+        {
+        }
         public (Options? options, IEnumerable<string>? errors) Provide(ReadmeRewriterParseResult parseResult)
         {
             string projectDir = parseResult.ProjectDir;

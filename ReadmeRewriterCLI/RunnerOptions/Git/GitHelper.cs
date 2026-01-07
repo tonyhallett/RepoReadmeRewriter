@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
-namespace ReadmeRewriterCLI
+namespace ReadmeRewriterCLI.RunnerOptions.Git
 {
     [ExcludeFromCodeCoverage]
     internal sealed class GitHelper : IGitHelper

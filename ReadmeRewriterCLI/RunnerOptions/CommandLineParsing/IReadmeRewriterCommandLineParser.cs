@@ -1,4 +1,4 @@
-﻿namespace ReadmeRewriterCLI
+﻿namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing
 {
     internal interface IReadmeRewriterCommandLineParser
     {

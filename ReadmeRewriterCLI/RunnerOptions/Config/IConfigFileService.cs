@@ -1,4 +1,4 @@
-﻿namespace ReadmeRewriterCLI
+﻿namespace ReadmeRewriterCLI.RunnerOptions.Config
 {
     internal interface IConfigFileService
     {

@@ -1,14 +1,26 @@
 ﻿using System.CommandLine;
+using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Extensions;
 
-namespace ReadmeRewriterCLI
+namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing
 {
     internal sealed class ReadmeRewriterCommandLineParser : IReadmeRewriterCommandLineParser
     {
-        internal static readonly Option<string> s_repoUrlOption = new("--repo-url")
+        static ReadmeRewriterCommandLineParser()
         {
-            Description = "GitHub or GitLab repository URL (required)",
-            Required = true
-        };
+            s_repoUrlOption = DefinedStringOption.CreateRequired("--repo-url");
+            s_repoUrlOption.Description = "GitHub or GitLab repository URL (required)";
+            s_readmeOption = DefinedStringOption.CreateDefault("--readme", (_) => "README.md");
+            s_readmeOption.Description = "Readme relative path. Defaults to README.md";
+            s_outputReadmeOption = DefinedStringOption.CreateRequired("--output");
+            s_outputReadmeOption.Description = "Output readme path, relative to projectdir or absolute";
+            s_root = CreateRootCommand();
+        }
+
+        private static readonly RootCommand s_root;
+
+        internal static readonly DefinedStringOption s_repoUrlOption;
+        internal static readonly DefinedStringOption s_readmeOption;
+        internal static readonly DefinedStringOption s_outputReadmeOption;
 
         internal static readonly Option<string?> s_refOption = new("--ref")
         {
@@ -20,18 +32,6 @@ namespace ReadmeRewriterCLI
             Description = "Project directory path. Defaults to current directory",
             DefaultValueFactory = (_) => Environment.CurrentDirectory,
         }.AcceptLegalFilePathsOnly();
-
-        internal static readonly Option<string> s_readmeOption = new("--readme")
-        {
-            Description = "Readme relative path. Defaults to README.md",
-            DefaultValueFactory = (_) => "README.md"
-        };
-
-        internal static readonly Option<string?> s_outputReadmeOption = new("--output")
-        {
-            Description = "Output readme path, relative to projectdir or absolute",
-            Required = true
-        };
 
         internal static readonly Option<bool> s_errorOnHtmlOption = new("--error-on-html")
         {
@@ -53,7 +53,7 @@ namespace ReadmeRewriterCLI
             Description = "Path to JSON remove/replace settings file (see CLI config schema)"
         };
 
-        private static readonly RootCommand s_root = CreateRootCommand();
+        
 
         public (IEnumerable<string>? errors, ReadmeRewriterParseResult? result) Parse(IReadOnlyList<string> args)
         {
@@ -63,9 +63,10 @@ namespace ReadmeRewriterCLI
                 return (parseResult.Errors.Select(e => e.Message), null);
             }
 
-            string repoUrl = parseResult.GetValue(s_repoUrlOption)!;
+            string repoUrl = parseResult.GetRequiredStringValue(s_repoUrlOption)!;
+            string readmeRel = parseResult.GetRequiredStringValue(s_readmeOption)!;
+            string outputReadme = parseResult.GetRequiredStringValue(s_outputReadmeOption)!;
             string? repoRef = parseResult.GetValue(s_refOption);
-            string readmeRel = parseResult.GetValue(s_readmeOption)!;
 
             bool errorOnHtml = parseResult.GetValue(s_errorOnHtmlOption);
             bool removeHtml = parseResult.GetValue(s_removeHtmlOption);
@@ -73,7 +74,7 @@ namespace ReadmeRewriterCLI
 
             string? configPath = parseResult.GetValue(s_configOption);
             string projectDir = parseResult.GetValue(s_projectDirArg)!;
-            string outputReadme = parseResult.GetValue(s_outputReadmeOption)!;
+            
             return (null, new ReadmeRewriterParseResult(
                 repoUrl,
                 readmeRel,

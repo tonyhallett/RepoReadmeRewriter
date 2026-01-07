@@ -1,4 +1,4 @@
-﻿namespace ReadmeRewriterCLI
+﻿namespace ReadmeRewriterCLI.ConsoleWriting
 {
     internal interface IConsoleWriter
     {

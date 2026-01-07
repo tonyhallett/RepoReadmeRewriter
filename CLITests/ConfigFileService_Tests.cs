@@ -1,5 +1,5 @@
 ﻿using Moq;
-using ReadmeRewriterCLI;
+using ReadmeRewriterCLI.RunnerOptions.Config;
 using RepoReadmeRewriter.IOWrapper;
 
 namespace CLITests

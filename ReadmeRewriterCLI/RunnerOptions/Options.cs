@@ -1,7 +1,7 @@
 ﻿using RepoReadmeRewriter.Processing;
 using RepoReadmeRewriter.RemoveReplace.Settings;
 
-namespace ReadmeRewriterCLI
+namespace ReadmeRewriterCLI.RunnerOptions
 {
     internal sealed class Options(
         string projectDir,

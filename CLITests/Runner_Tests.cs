@@ -1,5 +1,8 @@
 ﻿using Moq;
 using ReadmeRewriterCLI;
+using ReadmeRewriterCLI.ConsoleWriting;
+using ReadmeRewriterCLI.RunnerOptions;
+using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing;
 using RepoReadmeRewriter.IOWrapper;
 using RepoReadmeRewriter.Runner;
 
@@ -106,8 +109,8 @@ namespace CLITests
 
             _ = InvokeReadmeRewriterRunner(result, mockConsoleWriter.Object);
 
-            mockConsoleWriter.Verify(m => m.WriteLine("Rewritten to outputreadme}"), Times.Once());
-            mockConsoleWriter.Verify(m => m.WriteErrorLine("error2"), Times.Never());
+            mockConsoleWriter.Verify(m => m.WriteLine("Rewritten to outputreadme"), Times.Once());
+            mockConsoleWriter.Verify(m => m.WriteErrorLine(It.IsAny<string>()), Times.Never());
         }
 
         [Test]

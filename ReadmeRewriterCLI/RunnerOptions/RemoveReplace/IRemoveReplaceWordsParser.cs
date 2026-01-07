@@ -1,6 +1,6 @@
 ﻿using RepoReadmeRewriter.RemoveReplace.Settings;
 
-namespace ReadmeRewriterCLI
+namespace ReadmeRewriterCLI.RunnerOptions.RemoveReplace
 {
     internal interface IRemoveReplaceWordsParser
     {

@@ -1,5 +1,5 @@
 ﻿using System.CommandLine.Parsing;
-using ReadmeRewriterCLI;
+using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing;
 
 namespace CLITests
 {

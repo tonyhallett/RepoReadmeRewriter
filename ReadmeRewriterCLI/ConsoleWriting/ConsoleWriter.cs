@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace ReadmeRewriterCLI
+namespace ReadmeRewriterCLI.ConsoleWriting
 {
     [ExcludeFromCodeCoverage]
     internal sealed class ConsoleWriter : IConsoleWriter

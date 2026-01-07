@@ -1,4 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using ReadmeRewriterCLI.ConsoleWriting;
+using ReadmeRewriterCLI.RunnerOptions;
+using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing;
 using RepoReadmeRewriter.IOWrapper;
 using RepoReadmeRewriter.Runner;
 
@@ -15,14 +18,7 @@ namespace ReadmeRewriterCLI
         public Runner() : this(
             new ReadmeRewriterCommandLineParser(),
             ConsoleWriter.Instance,
-            new OptionsProvider(
-                ConfigFileService.Instance,
-                new GitHelper(),
-                new RemoveReplaceConfigLoader(
-                    IOHelper.Instance,
-                    ConfigFileService.Instance,
-                    new RemoveReplaceWordsParserWrapper()),
-                IOHelper.Instance),
+            new OptionsProvider(),
             new ReadmeRewriterRunner(),
             IOHelper.Instance
             )
