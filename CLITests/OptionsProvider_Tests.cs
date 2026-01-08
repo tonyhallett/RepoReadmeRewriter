@@ -260,17 +260,14 @@ namespace CLITests
             });
         }
 
-        [TestCase(GitRefKind.TagOrSha)]
-        [TestCase(GitRefKind.BranchName)]
-        [TestCase(GitRefKind.ShortCommitSha)]
-        [TestCase(GitRefKind.CommitSha)]
-        [TestCase(GitRefKind.Auto)]
+        [TestCaseSource(nameof(AllGitRefKinds))]
         public void Should_Use_Selected_Git_Helper_Method_When_Ref_Not_Provided(GitRefKind gitRefKind)
         {
             var mockGitHelper = new Mock<IGitHelper>();
             const string projectDir = "projectDir";
             _ = mockGitHelper.Setup(m => m.FindGitRoot(projectDir)).Returns("root");
-            _ = mockGitHelper.Setup(m => m.TagOrSha("root")).Returns("tag");
+            _ = mockGitHelper.Setup(m => m.Tag("root")).Returns("tag");
+            _ = mockGitHelper.Setup(m => m.TagOrSha("root")).Returns("tagOrSha");
             _ = mockGitHelper.Setup(m => m.BranchName("root")).Returns("branch");
             _ = mockGitHelper.Setup(m => m.ShortCommitSha("root")).Returns("short");
             _ = mockGitHelper.Setup(m => m.CommitSha("root")).Returns("commit");
@@ -301,9 +298,13 @@ namespace CLITests
 
                 switch (gitRefKind)
                 {
+                    case GitRefKind.Tag:
+                        mockGitHelper.Verify(m => m.Tag("root"));
+                        Assert.That(options.RepoRef, Is.EqualTo("tag"));
+                        break;
                     case GitRefKind.TagOrSha:
                         mockGitHelper.Verify(m => m.TagOrSha("root"));
-                        Assert.That(options.RepoRef, Is.EqualTo("tag"));
+                        Assert.That(options.RepoRef, Is.EqualTo("tagOrSha"));
                         break;
                     case GitRefKind.BranchName:
                         mockGitHelper.Verify(m => m.BranchName("root"));
@@ -324,6 +325,8 @@ namespace CLITests
                 }
             });
         }
+
+        private static IEnumerable<GitRefKind> AllGitRefKinds => Enum.GetValues<GitRefKind>();
 
         [Test]
         public void Should_Error_If_RepoRef_Cannot_Be_Obtained()

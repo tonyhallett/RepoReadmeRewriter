@@ -105,6 +105,7 @@ namespace ReadmeRewriterCLI.RunnerOptions
             {
                 string? repoRef = parseResult.GitRefKind switch
                 {
+                    GitRefKind.Tag => gitHelper.Tag(gitRoot),
                     GitRefKind.TagOrSha => gitHelper.TagOrSha(gitRoot),
                     GitRefKind.BranchName => gitHelper.BranchName(gitRoot),
                     GitRefKind.ShortCommitSha => gitHelper.ShortCommitSha(gitRoot),

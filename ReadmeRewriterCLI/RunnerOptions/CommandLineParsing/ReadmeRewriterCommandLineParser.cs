@@ -1,5 +1,6 @@
 ﻿using System.CommandLine;
 using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Extensions;
+using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Help;
 
 namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing
 {
@@ -8,45 +9,44 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing
         static ReadmeRewriterCommandLineParser()
         {
             s_repoUrlOption = DefinedStringOption.CreateRequired("--repo-url","-r");
-            s_repoUrlOption.Description = "GitHub or GitLab repository URL (required)";
+            s_repoUrlOption.Description = "GitHub or GitLab repository URL";
 
             s_readmeOption = DefinedStringOption.CreateDefault("--readme", (_) => "README.md");
-            s_readmeOption.Description = "Readme relative path. Defaults to README.md";
+            s_readmeOption.Description = "Readme relative path";
 
             s_outputReadmeOption = DefinedStringOption.CreateRequired("--output","-o");
-            s_outputReadmeOption.Description = "Output readme path, relative to projectdir or absolute";
-
-            s_root = CreateRootCommand();
+            s_outputReadmeOption.Description = $"Output readme path, relative to {s_projectDirArgumentName} or absolute";
         }
-
-        private static readonly RootCommand s_root;
-
         internal static readonly DefinedStringOption s_repoUrlOption;
         internal static readonly DefinedStringOption s_readmeOption;
         internal static readonly DefinedStringOption s_outputReadmeOption;
 
-        internal static readonly Argument<DirectoryInfo> s_projectDirArg = new Argument<DirectoryInfo>("projectdir")
+        internal static readonly string s_gitRefKindOptionName = "--gh";
+        internal static readonly string s_projectDirArgumentName = "projectdir";
+
+        internal static readonly Argument<DirectoryInfo> s_projectDirArg = new Argument<DirectoryInfo>(s_projectDirArgumentName)
         {
-            Description = "Project directory path. Defaults to current directory",
+            Description = "Project directory path. Defaults to Environment.CurrentDirectory",
             DefaultValueFactory = (_) => new DirectoryInfo(Environment.CurrentDirectory)
         }.AcceptExistingOnly();
 
         internal static readonly Option<string?> s_refOption = new("--ref")
         {
-            Description = "Repository ref/commit/branch. Defaults to HEAD commit or 'master'"
+            Description = $"Repository ref. Alternatively use {s_gitRefKindOptionName}'"
         };
 
         internal static readonly Dictionary<GitRefKind, string[]> s_gitRefKindLookup = new()
         {
-            { GitRefKind.TagOrSha, ["tag", "tagorsha", "tag-or-sha"] },
+            { GitRefKind.Tag, ["tag"] },
+            { GitRefKind.TagOrSha, ["tagorsha", "tag-or-sha"] },
             { GitRefKind.CommitSha, ["commit", "sha", "full"] },
             { GitRefKind.ShortCommitSha, ["short", "short-commit", "shortcommit"] },
             { GitRefKind.BranchName, ["branch", "branchname"] }
         };
-
-        internal static readonly Option<GitRefKind> s_gitRefKindOption = new EnumLookUpOption<GitRefKind>("--gh", s_gitRefKindLookup)
+        
+        internal static readonly Option<GitRefKind> s_gitRefKindOption = new EnumLookUpOption<GitRefKind>(s_gitRefKindOptionName, s_gitRefKindLookup)
         {
-            Description = "Resolve ref using git: tag, commit, short-commit, branch. Defaults to commit SHA",
+            Description = "Resolve ref using git. Defaults to commit SHA or master",
         }.Build();
 
         internal static readonly Option<bool> s_errorOnHtmlOption = new("--error-on-html")
@@ -66,15 +66,35 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing
 
         internal static readonly Option<string?> s_configOption = new Option<string?>("--config", "-c")
         {
-            Description = "Path to JSON remove/replace settings file (see CLI config schema)"
+            Description = "Path to JSON remove/replace settings file"
         }.AcceptLegalFilePathsOnly();
 
-        public (IEnumerable<string>? errors, ReadmeRewriterParseResult? result) Parse(IReadOnlyList<string> args)
+        public (IEnumerable<string>? errors, ReadmeRewriterParseResult? result, IArgumentsOptionsInfo? helpOutput) Parse(IReadOnlyList<string> args)
         {
-            ParseResult parseResult = s_root.Parse(args);
+            CommandLineHelpParseResult helpParseResult = CommandLineHelpParser.Parse(new("ReadmeRewriter CLI")
+            {
+                s_projectDirArg,
+                s_repoUrlOption,
+                s_outputReadmeOption,
+                s_readmeOption,
+                s_refOption,
+                s_gitRefKindOption,
+                s_errorOnHtmlOption,
+                s_removeHtmlOption,
+                s_extractDetailsSummaryOption,
+                 s_configOption,
+            }, args);
+
+            ParseResult parseResult = helpParseResult.ParseResult;
+
             if (parseResult.Errors.Count > 0)
             {
-                return (parseResult.Errors.Select(e => e.Message), null);
+                return (parseResult.Errors.Select(e => e.Message), null, null);
+            }
+
+            if (helpParseResult.HelpInvoked)
+            {
+                return (null, null, new ArgumentsOptionsInfo(parseResult.RootCommandResult.Command));
             }
 
             return (null, new ReadmeRewriterParseResult(
@@ -87,25 +107,7 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing
                 parseResult.GetDefinedStringOptionValue(s_outputReadmeOption),
                 parseResult.GetValue(s_errorOnHtmlOption),
                 parseResult.GetValue(s_removeHtmlOption),
-                parseResult.GetValue(s_extractDetailsSummaryOption)));
-        }
-
-        private static RootCommand CreateRootCommand()
-        {
-            var root = new RootCommand("ReadmeRewriter CLI")
-            {
-                s_repoUrlOption,
-                s_refOption,
-                s_gitRefKindOption,
-                s_readmeOption,
-                s_configOption,
-                s_projectDirArg,
-                s_outputReadmeOption,
-                s_errorOnHtmlOption,
-                s_removeHtmlOption,
-                s_extractDetailsSummaryOption
-            };
-            return root;
+                parseResult.GetValue(s_extractDetailsSummaryOption)), null);
         }
     }
 }

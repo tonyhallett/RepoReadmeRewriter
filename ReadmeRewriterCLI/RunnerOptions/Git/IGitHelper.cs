@@ -11,5 +11,7 @@
         string ShortCommitSha(string repoRoot);
 
         string TagOrSha(string repoRoot);
+
+        string Tag(string repoRoot);
     }
 }

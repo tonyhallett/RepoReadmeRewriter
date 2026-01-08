@@ -7,20 +7,17 @@ namespace ReadmeRewriterCLI.RunnerOptions.Git
     [ExcludeFromCodeCoverage]
     internal sealed class GitHelper : IGitHelper
     {
-        /// <summary>
-        /// Equivalent to MSBuild SourceRevisionId
-        /// </summary>
+        private const string DescribeTagsExactMatchArgs = "describe --tags --exact-match";
+
         public string CommitSha(string repoRoot) => RunGit("rev-parse HEAD", repoRoot);
 
         public string ShortCommitSha(string repoRoot) => RunGit("rev-parse --short HEAD", repoRoot);
 
         public string BranchName(string repoRoot) => RunGit("rev-parse --abbrev-ref HEAD", repoRoot);
 
-        /// <summary>
-        /// Preferred identifier for README pinning:
-        /// tag (exact match) → full SHA
-        /// </summary>
-        public string TagOrSha(string repoRoot) => TryRunGit("describe --tags --exact-match", repoRoot) ?? CommitSha(repoRoot);
+        public string TagOrSha(string repoRoot) => TryRunGit(DescribeTagsExactMatchArgs, repoRoot) ?? CommitSha(repoRoot);
+
+        public string Tag(string repoRoot) => RunGit(DescribeTagsExactMatchArgs, repoRoot);
 
         private static string RunGit(string arguments, string _repoRoot)
         {

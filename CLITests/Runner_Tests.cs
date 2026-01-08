@@ -3,6 +3,7 @@ using ReadmeRewriterCLI;
 using ReadmeRewriterCLI.ConsoleWriting;
 using ReadmeRewriterCLI.RunnerOptions;
 using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing;
+using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Help;
 using RepoReadmeRewriter.IOWrapper;
 using RepoReadmeRewriter.Runner;
 
@@ -16,7 +17,7 @@ namespace CLITests
             string[] args = ["arg1", "arg2"];
             var mockParser = new Mock<IReadmeRewriterCommandLineParser>();
             List<string> errors = ["error1", "error2"];
-            mockParser.Setup(m => m.Parse(args)).Returns((errors, null)).Verifiable();
+            mockParser.Setup(m => m.Parse(args)).Returns((errors, null, null)).Verifiable();
             var mockConsoleWriter = new Mock<IConsoleWriter>();
             var runner = new Runner(
                 mockParser.Object,
@@ -38,7 +39,7 @@ namespace CLITests
             string[] args = ["arg1", "arg2"];
             var mockParser = new Mock<IReadmeRewriterCommandLineParser>();
             ReadmeRewriterParseResult parserResult = new("repourl", "", null, null, GitRefKind.Auto, "", "", false, false, false);
-            mockParser.Setup(m => m.Parse(args)).Returns((null, parserResult)).Verifiable();
+            mockParser.Setup(m => m.Parse(args)).Returns((null, parserResult, null)).Verifiable();
             var mockOptionsProvider = new Mock<IOptionsProvider>();
             _ = mockOptionsProvider.Setup(m => m.Provide(parserResult)).Returns((null, ["error1", "error2"]));
             var mockConsoleWriter = new Mock<IConsoleWriter>();
@@ -57,6 +58,25 @@ namespace CLITests
         }
 
         [Test]
+        public void Should_Write_Help_And_Exit_0_When_HelpOutput_Present()
+        {
+            string[] args = ["--help"];
+            var mockParser = new Mock<IReadmeRewriterCommandLineParser>();
+            IArgumentsOptionsInfo cliHelp = Mock.Of<IArgumentsOptionsInfo>();
+            mockParser.Setup(m => m.Parse(args)).Returns((null, null, cliHelp)).Verifiable();
+            var mockConsoleWriter = new Mock<IConsoleWriter>();
+            var runner = new Runner(
+                mockParser.Object,
+                mockConsoleWriter.Object,
+                Mock.Of<IOptionsProvider>(MockBehavior.Strict),
+                Mock.Of<IReadmeRewriterRunner>(MockBehavior.Strict),
+                Mock.Of<IIOHelper>(MockBehavior.Strict));
+            int exitCode = runner.Run(args);
+            Assert.That(exitCode, Is.EqualTo(0));
+            mockConsoleWriter.Verify(m => m.WriteHelp(cliHelp), Times.Once);
+        }
+
+        [Test]
         public void Should_Invoke_The_ReadmeRewriterRunner_With_Options_From_Parsed_Args() => InvokeReadmeRewriterRunner(new ReadmeRewriterRunnerResult());
 
         private static int InvokeReadmeRewriterRunner(ReadmeRewriterRunnerResult result, IConsoleWriter? consoleWriter = null, IIOHelper? ioHelper = null)
@@ -64,7 +84,7 @@ namespace CLITests
             string[] args = ["arg1", "arg2"];
             var mockParser = new Mock<IReadmeRewriterCommandLineParser>();
             ReadmeRewriterParseResult parserResult = new("repourl", "", null, null, GitRefKind.Auto, "", "", false, false, false);
-            mockParser.Setup(m => m.Parse(args)).Returns((null, parserResult)).Verifiable();
+            mockParser.Setup(m => m.Parse(args)).Returns((null, parserResult, null)).Verifiable();
             var mockOptionsProvider = new Mock<IOptionsProvider>();
             var options = new Options("projectdir", "repourl", "reporef", "readmerel", RepoReadmeRewriter.Processing.RewriteTagsOptions.ErrorOnHtml, null, "outputreadme");
             _ = mockOptionsProvider.Setup(m => m.Provide(It.IsAny<ReadmeRewriterParseResult>())).Returns((options, null));

@@ -2,6 +2,7 @@
 using ReadmeRewriterCLI.ConsoleWriting;
 using ReadmeRewriterCLI.RunnerOptions;
 using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing;
+using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Help;
 using RepoReadmeRewriter.IOWrapper;
 using RepoReadmeRewriter.Runner;
 
@@ -17,7 +18,7 @@ namespace ReadmeRewriterCLI
         [ExcludeFromCodeCoverage]
         public Runner() : this(
             new ReadmeRewriterCommandLineParser(),
-            ConsoleWriter.Instance,
+            SpectreConsoleWriter.Instance,
             new OptionsProvider(),
             new ReadmeRewriterRunner(),
             IOHelper.Instance
@@ -27,7 +28,7 @@ namespace ReadmeRewriterCLI
 
         public int Run(string[] args)
         {
-            (IEnumerable<string>? Errors, ReadmeRewriterParseResult? Result) = parser.Parse(args);
+            (IEnumerable<string>? Errors, ReadmeRewriterParseResult? Result, IArgumentsOptionsInfo? helpOutput) = parser.Parse(args);
             if (Errors != null)
             {
                 foreach (string error in Errors)
@@ -36,6 +37,12 @@ namespace ReadmeRewriterCLI
                 }
 
                 return 1;
+            }
+
+            if (helpOutput != null)
+            {
+                consoleWriter.WriteHelp(helpOutput);
+                return 0;
             }
 
             (Options? options, IEnumerable<string>? errors) = optionsProvider.Provide(Result!);

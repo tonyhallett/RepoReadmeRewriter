@@ -1,20 +1,33 @@
-﻿using System.Collections;
-using System.CommandLine.Parsing;
+﻿using System.CommandLine.Parsing;
 using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing;
+using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Help;
 
 namespace CLITests
 {
     internal sealed class ReadmeRewriterCommandLineParser_Tests
     {
         [Test]
+        public void Should_Support_Help()
+        {
+            (IEnumerable<string>? errors, ReadmeRewriterParseResult? result, IArgumentsOptionsInfo? helpOutput) = new ReadmeRewriterCommandLineParser().Parse(["--help"]);
+            Assert.Multiple(() =>
+            {
+                Assert.That(errors, Is.Null);
+                Assert.That(result, Is.Null);
+                Assert.That(helpOutput, Is.Not.Null);
+            });
+        }
+
+        [Test]
         public void Should_Have_Errors_When_Do_Not_Supply_Required_Options()
         {
-            (IEnumerable<string>? errors, ReadmeRewriterParseResult? result) = new ReadmeRewriterCommandLineParser().Parse([]);
+            (IEnumerable<string>? errors, ReadmeRewriterParseResult? result, IArgumentsOptionsInfo? helpOutput) = new ReadmeRewriterCommandLineParser().Parse([]);
 
             List<string> errorList = [.. errors!];
             Assert.Multiple(() =>
             {
                 Assert.That(result, Is.Null);
+                Assert.That(helpOutput, Is.Null);
                 Assert.That(errorList, Has.Count.EqualTo(2));
                 Assert.That(errorList.Any(e => e.Contains(ReadmeRewriterCommandLineParser.s_repoUrlOption.Name)), Is.True);
                 Assert.That(errorList.Any(e => e.Contains(ReadmeRewriterCommandLineParser.s_outputReadmeOption.Name)), Is.True);
@@ -24,10 +37,11 @@ namespace CLITests
         [Test]
         public void Should_Have_Correct_Default_Values_When_Only_Required_Options_Supplied()
         {
-            (IEnumerable<string>? errors, ReadmeRewriterParseResult? result) = new ReadmeRewriterCommandLineParser().Parse(ArgsWithRequired(""));
+            (IEnumerable<string>? errors, ReadmeRewriterParseResult? result, IArgumentsOptionsInfo? helpOutput) = new ReadmeRewriterCommandLineParser().Parse(ArgsWithRequired(""));
 
             Assert.Multiple(() =>
             {
+                Assert.That(helpOutput, Is.Null);
                 Assert.That(errors, Is.Null);
                 if (result is null)
                 {
@@ -46,10 +60,10 @@ namespace CLITests
             });
         }
 
-        [TestCaseSource(typeof(GitRefKindSource))]
+        [TestCaseSource(nameof(GitRefKindCases))]
         public void Should_Parse_GitRefKind_When_Specified(string gh, GitRefKind expectedRefKind)
         {
-            (IEnumerable<string>? errors, ReadmeRewriterParseResult? result) = GhOptionTest(gh);
+            (IEnumerable<string>? errors, ReadmeRewriterParseResult? result, IArgumentsOptionsInfo? helpOutput) = GhOptionTest(gh);
 
             Assert.Multiple(() =>
             {
@@ -58,19 +72,13 @@ namespace CLITests
             });
         }
 
-        internal sealed class GitRefKindSource : IEnumerable
-        {
-            private readonly IEnumerable<object[]> _cases;
-
-            public GitRefKindSource() => _cases = ReadmeRewriterCommandLineParser.s_gitRefKindLookup.SelectMany(de => de.Value.Select(v => new object[] { v, de.Key }));
-
-            public IEnumerator GetEnumerator() => _cases.GetEnumerator();
-        }
+        private static IEnumerable<TestCaseData> GitRefKindCases => ReadmeRewriterCommandLineParser.s_gitRefKindLookup
+            .SelectMany(de => de.Value.Select(v => new TestCaseData(v, de.Key)));
 
         [Test]
         public void Should_Error_For_Unknown_Gh_Argument()
         {
-            (IEnumerable<string>? errors, ReadmeRewriterParseResult? result) = GhOptionTest("bad");
+            (IEnumerable<string>? errors, ReadmeRewriterParseResult? result, IArgumentsOptionsInfo? helpOutput) = GhOptionTest("bad");
 
             Assert.Multiple(() =>
             {
@@ -79,7 +87,7 @@ namespace CLITests
             });
         }
 
-        private static (IEnumerable<string>? errors, ReadmeRewriterParseResult? result) GhOptionTest(string ghArg)
+        private static (IEnumerable<string>? errors, ReadmeRewriterParseResult? result, IArgumentsOptionsInfo? helpOutput) GhOptionTest(string ghArg)
             => new ReadmeRewriterCommandLineParser().Parse(ArgsWithRequired($"--gh {ghArg}"));
 
         private static IReadOnlyList<string> ArgsWithRequired(string other)

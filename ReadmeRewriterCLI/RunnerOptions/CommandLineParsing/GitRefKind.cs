@@ -3,6 +3,7 @@
     internal enum GitRefKind
     {
         Auto,
+        Tag,
         TagOrSha,
         CommitSha,
         ShortCommitSha,
