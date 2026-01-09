@@ -15,7 +15,7 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Help
             Name = argument.Name;
             if (argument.HasDefaultValue)
             {
-                DefaultValue = argument.GetDefaultValue()!.ToString();
+                DefaultValue = argument is IHelpDefaultValue helpDefaultValue ? helpDefaultValue.DefaultValue : argument.GetDefaultValue()!.ToString();
             }
 
             Description = argument.Description;

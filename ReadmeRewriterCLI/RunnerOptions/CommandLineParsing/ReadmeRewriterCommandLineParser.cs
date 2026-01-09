@@ -24,9 +24,9 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing
         internal static readonly string s_gitRefKindOptionName = "--gh";
         internal static readonly string s_projectDirArgumentName = "projectdir";
 
-        internal static readonly Argument<DirectoryInfo> s_projectDirArg = new Argument<DirectoryInfo>(s_projectDirArgumentName)
+        internal static readonly Argument<DirectoryInfo> s_projectDirArg = new HelpArgument<DirectoryInfo>(s_projectDirArgumentName, "Environment.CurrentDirectory")
         {
-            Description = "Project directory path. Defaults to Environment.CurrentDirectory",
+            Description = "Project directory path.",
             DefaultValueFactory = (_) => new DirectoryInfo(Environment.CurrentDirectory),
         }.AcceptExistingOnly();
 

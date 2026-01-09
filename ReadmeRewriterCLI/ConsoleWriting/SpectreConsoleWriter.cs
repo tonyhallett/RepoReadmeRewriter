@@ -31,16 +31,18 @@ namespace ReadmeRewriterCLI.ConsoleWriting
 
         public void WriteWarningLine(string message) => _ansiConsole.MarkupLine($"[yellow]{message}[/]");
 
-        private void WriteCapabilities()
+        private sealed class OptionsLayout(
+            List<IOptionInfo> requiredOptions,
+            List<IOptionInfo> optionalOptions,
+            bool hasDefault,
+            bool hasAliases
+        )
         {
-            Capabilities capabilities = _ansiConsole.Profile.Capabilities;
-            _ansiConsole.WriteLine($"Legacy - {capabilities.Legacy}");
-            _ansiConsole.WriteLine($"Unicode - {capabilities.Unicode}");
-            _ansiConsole.WriteLine($"Ansi - {capabilities.Ansi}");
-            _ansiConsole.WriteLine($"ColorSystem - {capabilities.ColorSystem}");
-            _ansiConsole.WriteLine($"Links - {capabilities.Links}");
+            public List<IOptionInfo> RequiredOptions { get; } = requiredOptions;
+            public List<IOptionInfo> OptionalOptions { get; } = optionalOptions;
+            public bool HasDefaults { get; } = hasDefault;
+            public bool HasAliases { get; } = hasAliases;
         }
-
         public void WriteHelp(IArgumentsOptionsInfo helpOutput)
         {
             WriteDescription();
@@ -48,25 +50,167 @@ namespace ReadmeRewriterCLI.ConsoleWriting
             WriteArguments();
             WriteOptions();
 
-            void WriteDescription() =>  _ansiConsole.Write(
-                CreateRowsSectionPanel(
-                    "About",
-                    [
-                    "A CLI tool to help you rewrite your GitHub or GitLab relative README assets to absolute.",
-                    "And more...."
-                    ]));
+            void WriteDescription()
+            {
+                WriteHeader("About");
+                _ansiConsole.WriteLine("A CLI tool to help you rewrite your GitHub or GitLab relative README assets to absolute.");
+                _ansiConsole.WriteLine("And more....");
+                _ansiConsole.WriteLine();
+            }
 
-            void WriteUsage() => WriteHeader("Usage");
+            void WriteUsage()
+            {
+                WriteHeader("Usage");
+                string exeName = "ReadmeRewriterCLI";
+                var usageSb = new StringBuilder(exeName + " ");
+                foreach (IArgumentInfo argument in helpOutput.Arguments)
+                {
+                    _ = usageSb.Append($"<{argument.Name}> ");
+                }
 
-            void WriteArguments() => WriteHeader($"Arguments - {helpOutput.Arguments.Count}");
+                if (helpOutput.Options.Count > 0)
+                {
+                    _ = usageSb.Append("[options]");
+                }
 
-            void WriteOptions() => WriteHeader($"Options - {helpOutput.Options.Count}");
+                // note that MarkupLine throws when no [markup]...[/]
+                _ansiConsole.WriteLine(usageSb.ToString());
+                _ansiConsole.WriteLine();
+            }
 
-            void WriteHeader(string header) => _ansiConsole.MarkupLine($"[bold green]{header}:[/]");
+            void WriteArguments()
+            {
+                if (helpOutput.Arguments.Count == 0)
+                {
+                    return;
+                }
 
-            Panel CreateRowsSectionPanel(string header, IEnumerable<string> lines) => CreateSectionPanel(header, new Rows(lines.Select(l => new Markup(l))));
+                TableColumn tc1 = new("");
+                TableColumn defaultColumn = new("Default");
+                TableColumn descriptionColumn = new("");
+                Table table = new Table()
+                {
+                    Expand = true
+                }.AddColumns(tc1, defaultColumn, descriptionColumn);
 
-            Panel CreateSectionPanel(string header, IRenderable content) => new Panel(content).Header($"[bold green]{header}[/]").BorderColor(Color.Green).Expand();
+                bool hasDefaultValue = false;
+
+                foreach (IArgumentInfo argument in helpOutput.Arguments)
+                {
+                    string defaultValue = argument.DefaultValue ?? "";
+                    if (!hasDefaultValue)
+                    {
+                        hasDefaultValue = argument.DefaultValue != null;
+                    }
+
+                    _ = table.AddRow($"<{argument.Name}>", defaultValue, argument.Description ?? "");
+                }
+
+                if (!hasDefaultValue)
+                {
+                    // this does not work as expected
+                    defaultColumn.Width = 0;
+                }
+
+                WriteHeader("Arguments");
+                _ansiConsole.Write(table);
+            }
+        
+            void WriteOptions()
+            {
+                OptionsLayout optionsLayout  = BuildOptionsLayout();
+
+                TableColumn tc1 = new("");
+                TableColumn aliasesColumn = new("Aliases");
+                TableColumn defaultColumn = new("Default");
+                TableColumn descriptionColumn = new("");
+
+                Table table = new Table()
+                {
+                    Expand = true
+                }.AddColumns(tc1, aliasesColumn,defaultColumn, descriptionColumn);
+                
+                // exception if add rows before columns
+                AddRequiredOptions();
+                AddOptionalOptions();
+
+                if (!optionsLayout.HasDefaults)
+                {
+                    defaultColumn.Width = 0;
+                }
+
+                if (!optionsLayout.HasAliases)
+                {
+                    aliasesColumn.Width = 0;
+                }
+
+                void AddOptionalOptions()
+                {
+                    if (optionsLayout.OptionalOptions.Count > 0)
+                    {
+                        if (optionsLayout.RequiredOptions.Count > 0)
+                        {
+                            _ = table.AddEmptyRow();
+                        }
+
+                        _ = table.AddRow("[bold]Optional[/]");
+
+                        AddRows(optionsLayout.OptionalOptions);
+                    }
+                }
+
+                void AddRequiredOptions()
+                {
+                    if (optionsLayout.RequiredOptions.Count > 0)
+                    {
+                        _ = table.AddRow("[bold]Required[/]");
+                        AddRows(optionsLayout.RequiredOptions);
+                    }
+                }
+
+                void AddRows(List<IOptionInfo> options)
+                {
+                    foreach (IOptionInfo option in options)
+                    {
+                        string aliases = string.Join(", ", option.Aliases);
+                        string defaultValue = option.DefaultValue ?? "";
+                        _ = table.AddRow(option.Name,aliases, defaultValue, option.Description ?? "");
+                    }
+                }
+
+                OptionsLayout BuildOptionsLayout()
+                {
+                    List<IOptionInfo> requiredOptions = [];
+                    List<IOptionInfo> optionalOptions = [];
+                    bool hasAliases = false;
+                    bool hasDefault = false;
+
+                    foreach(IOptionInfo option in helpOutput.Options)
+                    {
+                        if(!hasAliases && option.Aliases.Count > 0)
+                        {
+                            hasAliases = true;
+                        }
+
+                        if (!hasDefault && option.DefaultValue != null)
+                        {
+                            hasDefault = true;
+                        }
+
+                        List<IOptionInfo> list = option.Required ? requiredOptions : optionalOptions;
+                        list.Add(option);
+                    }
+
+                    return new OptionsLayout(requiredOptions, optionalOptions, hasDefault, hasAliases);
+                }
+
+                WriteHeader("Options");
+                _ansiConsole.Write(table);
+            }
+
+            string GetHeader(string header) => $"[bold]{header}:[/]";
+
+            void WriteHeader(string header) => _ansiConsole.MarkupLine(GetHeader(header));
         }
     }
 }

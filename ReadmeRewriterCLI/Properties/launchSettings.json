@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ReadmeRewriterCLI": {
+      "commandName": "Project",
+      "commandLineArgs": "--help"
+    }
+  }
+}
