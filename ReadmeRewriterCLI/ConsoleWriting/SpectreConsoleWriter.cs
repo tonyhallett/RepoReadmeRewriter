@@ -43,16 +43,6 @@ namespace ReadmeRewriterCLI.ConsoleWriting
 
         public void WriteHelp(IArgumentsOptionsInfo helpOutput)
         {
-            string[] colors = ["green", "yellow"];
-            foreach (string color in colors)
-            {
-                _ansiConsole.MarkupLine($"Hello [{color}]:waving_hand:[/]!");
-                _ansiConsole.MarkupLine($"[{color}]:check_mark:[/] Task completed!");
-                _ansiConsole.MarkupLine($"[red]:x:[/] Error occurred [{color}]:warning:[/]");
-            }
-            
-
-            _ansiConsole.WriteLine();
             WriteDescription();
             WriteUsage();
             WriteArguments();
