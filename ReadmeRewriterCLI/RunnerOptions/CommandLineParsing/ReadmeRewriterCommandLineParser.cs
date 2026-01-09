@@ -27,7 +27,7 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing
         internal static readonly Argument<DirectoryInfo> s_projectDirArg = new Argument<DirectoryInfo>(s_projectDirArgumentName)
         {
             Description = "Project directory path. Defaults to Environment.CurrentDirectory",
-            DefaultValueFactory = (_) => new DirectoryInfo(Environment.CurrentDirectory)
+            DefaultValueFactory = (_) => new DirectoryInfo(Environment.CurrentDirectory),
         }.AcceptExistingOnly();
 
         internal static readonly Option<string?> s_refOption = new("--ref")

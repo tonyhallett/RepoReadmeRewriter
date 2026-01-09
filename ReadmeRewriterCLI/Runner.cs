@@ -18,7 +18,7 @@ namespace ReadmeRewriterCLI
         [ExcludeFromCodeCoverage]
         public Runner() : this(
             new ReadmeRewriterCommandLineParser(),
-            SpectreConsoleWriter.Instance,
+            SpectreConsoleWriter.Instance(),
             new OptionsProvider(),
             new ReadmeRewriterRunner(),
             IOHelper.Instance
