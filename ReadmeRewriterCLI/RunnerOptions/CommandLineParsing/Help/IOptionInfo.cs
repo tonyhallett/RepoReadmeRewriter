@@ -12,6 +12,6 @@
 
         ICollection<string> Aliases { get; }
 
-        List<string>? Completions { get; }
+        List<string> CompletionLines { get; }
     }
 }

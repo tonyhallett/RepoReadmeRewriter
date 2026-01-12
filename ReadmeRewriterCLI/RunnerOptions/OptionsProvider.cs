@@ -16,6 +16,8 @@ namespace ReadmeRewriterCLI.RunnerOptions
         IIOHelper ioHelper
         ) : IOptionsProvider
     {
+        public string RefKindAutoBehaviour { get; } = "commit SHA or master";
+
         [ExcludeFromCodeCoverage]
         public OptionsProvider() : this(
             ConfigFileService.Instance,
@@ -138,7 +140,7 @@ namespace ReadmeRewriterCLI.RunnerOptions
 
             if (parseResult.RemoveHtml == true && parseResult.ErrorOnHtml == true)
             {
-                errors.Add("Cannot set both RemoveHtml and ErrorOnHtml to true");
+                errors.Add($"Cannot set both {parseResult.ErrorOnHtmlOptionName} and {parseResult.RemoveHtmlOptionName} to true");
                 return options;
             }
 

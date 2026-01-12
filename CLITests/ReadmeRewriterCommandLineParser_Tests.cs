@@ -7,14 +7,53 @@ namespace CLITests
     internal sealed class ReadmeRewriterCommandLineParser_Tests
     {
         [Test]
+        public void Should_Not_Have_Version_Option()
+        {
+            var parser = new ReadmeRewriterCommandLineParser();
+            Assert.That(() => parser.Parse(["--version"]), Throws.Nothing);
+        }
+
+        [Test]
         public void Should_Support_Help()
         {
-            (IEnumerable<string>? errors, ReadmeRewriterParseResult? result, IArgumentsOptionsInfo? helpOutput) = new ReadmeRewriterCommandLineParser().Parse(["--help"]);
+            var parser = new ReadmeRewriterCommandLineParser();
+            parser.SetRefKindAutoBehaviour("auto behaviour");
+            (IEnumerable<string>? errors, ReadmeRewriterParseResult? result, IArgumentsOptionsInfo? helpOutput) = parser.Parse(["--help"]);
             Assert.Multiple(() =>
             {
                 Assert.That(errors, Is.Null);
                 Assert.That(result, Is.Null);
-                Assert.That(helpOutput, Is.Not.Null);
+
+                IArgumentInfo helpArgument = helpOutput!.Arguments.Single();
+                Assert.That(helpArgument.DefaultValue, Is.EqualTo("Environment.CurrentDirectory"));
+
+                List<IOptionInfo> options = helpOutput.Options;
+                // includes readme and version
+                Assert.That(options, Has.Count.EqualTo(11));
+
+                ShouldNotHaveCompletionLinesForBooleanOptions();
+                ShouldHaveRequiredOptions();
+                AssertGitRefKindOptionProperties();
+
+                void ShouldNotHaveCompletionLinesForBooleanOptions()
+                {
+                    var booleanOptions = options.Where(o => o.DefaultValue is "False" or "True").ToList();
+                    booleanOptions.ForEach(o => Assert.That(o.CompletionLines, Is.Empty));
+                }
+
+                void ShouldHaveRequiredOptions() => Assert.That(options.Where(o => o.Required).Select(o => o.Name), Is.EqualTo(new[]
+                {
+                    ReadmeRewriterCommandLineParser.s_repoUrlOption.Name,
+                    ReadmeRewriterCommandLineParser.s_outputReadmeOption.Name
+                }));
+
+                void AssertGitRefKindOptionProperties()
+                {
+                    IOptionInfo gitRefKindOption = options.First(o => o.Name == ReadmeRewriterCommandLineParser.s_gitRefKindOptionName);
+                    Assert.That(gitRefKindOption.CompletionLines, Has.Count.EqualTo(ReadmeRewriterCommandLineParser.s_gitRefKindLookup.Count));
+                    Assert.That(gitRefKindOption.DefaultValue, Is.EqualTo(GitRefKind.Auto.ToString()));
+                    Assert.That(gitRefKindOption.Description, Is.EqualTo("Resolve ref using git. Defaults to auto behaviour"));
+                }
             });
         }
 

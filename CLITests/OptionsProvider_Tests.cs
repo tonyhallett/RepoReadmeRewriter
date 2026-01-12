@@ -33,7 +33,9 @@ namespace CLITests
                     "output/README.md",
                     false,
                     false,
-                    false));
+                    false,
+                    "",
+                    ""));
 
             mockIOHelper.VerifyAll();
             Assert.Multiple(() =>
@@ -69,12 +71,13 @@ namespace CLITests
                     "output/README.md",
                     true,
                     true,
-                    false));
+                    false,
+                    "errorName",
+                    "removeName"));
             Assert.Multiple(() =>
             {
                 Assert.That(options, Is.Null);
-                // todo the parser should supply names of the options
-                Assert.That(errors!.Single(), Is.EqualTo("Cannot set both RemoveHtml and ErrorOnHtml to true"));
+                Assert.That(errors!.Single(), Is.EqualTo("Cannot set both errorName and removeName to true"));
             });
         }
 
@@ -105,7 +108,9 @@ namespace CLITests
                     "output/README.md",
                     errorOnHtml,
                     removeHtml,
-                    extractDetailsSummary));
+                    extractDetailsSummary,
+                    "",
+                    ""));
 
             Assert.Multiple(() =>
             {
@@ -138,7 +143,9 @@ namespace CLITests
                     outputReadme,
                     false,
                     false,
-                    false));
+                    false,
+                    "",
+                    ""));
 
             Assert.Multiple(() =>
             {
@@ -158,7 +165,18 @@ namespace CLITests
 
             (Options? options, IEnumerable<string>? errors) = optionsProvider.Provide(
                 new ReadmeRewriterParseResult(
-                    "http:www.example.com/repo.git", "README.md", null, "reporef", GitRefKind.Auto, Environment.CurrentDirectory, "output/README.md", false, false, false));
+                    "http:www.example.com/repo.git",
+                    "README.md",
+                    null,
+                    "reporef",
+                    GitRefKind.Auto,
+                    Environment.CurrentDirectory,
+                    "output/README.md",
+                    false,
+                    false,
+                    false,
+                    "",
+                    ""));
 
             Assert.Multiple(() =>
             {
@@ -182,7 +200,18 @@ namespace CLITests
 
             (Options? options, IEnumerable<string>? errors) result = optionsProvider.Provide(
                 new ReadmeRewriterParseResult(
-                    "http:www.example.com/repo.git", "README.md", configPath, "reporef", GitRefKind.Auto, projectDir, "output/README.md", false, false, false));
+                    "http:www.example.com/repo.git",
+                    "README.md",
+                    configPath,
+                    "reporef",
+                    GitRefKind.Auto,
+                    projectDir,
+                    "output/README.md",
+                    false,
+                    false,
+                    false,
+                    "",
+                    ""));
 
             mockConfigFileService.Verify(m => m.GetConfigPath(projectDir, configPath));
             AssertError(result, $"Config file not found: {configPath}");
@@ -205,7 +234,18 @@ namespace CLITests
 
             (Options? options, IEnumerable<string>? errors) = optionsProvider.Provide(
                 new ReadmeRewriterParseResult(
-                    "http:www.example.com/repo.git", "README.md", "configPath", "reporef", GitRefKind.Auto, "projectDir", "output/README.md", false, false, false));
+                    "http:www.example.com/repo.git",
+                    "README.md",
+                    "configPath",
+                    "reporef",
+                    GitRefKind.Auto,
+                    "projectDir",
+                    "output/README.md",
+                    false,
+                    false,
+                    false,
+                    "",
+                    ""));
 
             Assert.Multiple(() =>
             {
@@ -232,7 +272,18 @@ namespace CLITests
 
             (Options? options, IEnumerable<string>? errors) = optionsProvider.Provide(
                 new ReadmeRewriterParseResult(
-                    "http:www.example.com/repo.git", "README.md", "configPath", "reporef", GitRefKind.Auto, "projectDir", "output/README.md", false, false, false));
+                    "http:www.example.com/repo.git",
+                    "README.md",
+                    "configPath",
+                    "reporef",
+                    GitRefKind.Auto,
+                    "projectDir",
+                    "output/README.md",
+                    false,
+                    false,
+                    false,
+                    "",
+                    ""));
 
             Assert.Multiple(() =>
             {
@@ -252,7 +303,19 @@ namespace CLITests
         {
             var optionsProvider = new OptionsProvider(new Mock<IConfigFileService>().Object, new Mock<IGitHelper>().Object, new Mock<IRemoveReplaceConfigLoader>().Object, SetupProjectDirExists().Object);
             (Options? options, IEnumerable<string>? errors) = optionsProvider.Provide(
-                new ReadmeRewriterParseResult("http:www.example.com/repo.git", "README.md", null, "reporef", GitRefKind.Auto, Environment.CurrentDirectory, "output/README.md", false, false, false));
+                new ReadmeRewriterParseResult(
+                    "http:www.example.com/repo.git",
+                    "README.md",
+                    null,
+                    "reporef",
+                    GitRefKind.Auto,
+                    Environment.CurrentDirectory,
+                    "output/README.md",
+                    false,
+                    false,
+                    false,
+                    "",
+                    ""));
             Assert.Multiple(() =>
             {
                 Assert.That(errors, Is.Null);
@@ -289,7 +352,9 @@ namespace CLITests
                     "output/README.md",
                     false,
                     false,
-                    false));
+                    false,
+                    "",
+                    ""));
 
             Assert.Multiple(() =>
             {
@@ -352,7 +417,9 @@ namespace CLITests
                     "output/README.md",
                     false,
                     false,
-                    false));
+                    false,
+                    "",
+                    ""));
 
             Assert.Multiple(() =>
             {
@@ -385,7 +452,9 @@ namespace CLITests
                     "output/README.md",
                     false,
                     false,
-                    false));
+                    false,
+                    "",
+                    ""));
 
             Assert.Multiple(() =>
             {
@@ -419,7 +488,9 @@ namespace CLITests
                     "output/README.md",
                     false,
                     false,
-                    false));
+                    false,
+                    "",
+                    ""));
 
             Assert.Multiple(() =>
             {
@@ -450,7 +521,9 @@ namespace CLITests
                     "output/README.md",
                     false,
                     false,
-                    false));
+                    false,
+                    "",
+                    ""));
 
             mockGitHelper.Verify(m => m.FindGitRoot(projectDir));
             Assert.Multiple(() =>

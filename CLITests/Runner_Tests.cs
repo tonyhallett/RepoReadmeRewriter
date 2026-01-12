@@ -17,12 +17,12 @@ namespace CLITests
             string[] args = ["arg1", "arg2"];
             var mockParser = new Mock<IReadmeRewriterCommandLineParser>();
             List<string> errors = ["error1", "error2"];
-            mockParser.Setup(m => m.Parse(args)).Returns((errors, null, null)).Verifiable();
+            _ = mockParser.Setup(m => m.Parse(args)).Returns((errors, null, null));
             var mockConsoleWriter = new Mock<IConsoleWriter>();
             var runner = new Runner(
                 mockParser.Object,
                 mockConsoleWriter.Object,
-                Mock.Of<IOptionsProvider>(MockBehavior.Strict),
+                Mock.Of<IOptionsProvider>(),
                 Mock.Of<IReadmeRewriterRunner>(MockBehavior.Strict),
                 Mock.Of<IIOHelper>(MockBehavior.Strict));
 
@@ -38,7 +38,19 @@ namespace CLITests
         {
             string[] args = ["arg1", "arg2"];
             var mockParser = new Mock<IReadmeRewriterCommandLineParser>();
-            ReadmeRewriterParseResult parserResult = new("repourl", "", null, null, GitRefKind.Auto, "", "", false, false, false);
+            ReadmeRewriterParseResult parserResult = new(
+                "repourl",
+                "",
+                null,
+                null,
+                GitRefKind.Auto,
+                "",
+                "",
+                false,
+                false,
+                false,
+                "",
+                "");
             mockParser.Setup(m => m.Parse(args)).Returns((null, parserResult, null)).Verifiable();
             var mockOptionsProvider = new Mock<IOptionsProvider>();
             _ = mockOptionsProvider.Setup(m => m.Provide(parserResult)).Returns((null, ["error1", "error2"]));
@@ -63,12 +75,21 @@ namespace CLITests
             string[] args = ["--help"];
             var mockParser = new Mock<IReadmeRewriterCommandLineParser>();
             IArgumentsOptionsInfo cliHelp = Mock.Of<IArgumentsOptionsInfo>();
-            mockParser.Setup(m => m.Parse(args)).Returns((null, null, cliHelp)).Verifiable();
+            bool parseInvoked = false;
+            _ = mockParser.Setup(m => m.SetRefKindAutoBehaviour("somebehaviour")).Callback(() => {
+                if(parseInvoked)
+                {
+                    Assert.Fail("SetRefKindAutoBehaviour should be called before Parse");
+                }
+            });
+            _ = mockParser.Setup(m => m.Parse(args)).Returns((null, null, cliHelp)).Callback(() => parseInvoked = true);
+            var mockOptionsProvider = new Mock<IOptionsProvider>();
+            _ = mockOptionsProvider.SetupGet(m => m.RefKindAutoBehaviour).Returns("somebehavior");
             var mockConsoleWriter = new Mock<IConsoleWriter>();
             var runner = new Runner(
                 mockParser.Object,
                 mockConsoleWriter.Object,
-                Mock.Of<IOptionsProvider>(MockBehavior.Strict),
+                mockOptionsProvider.Object,
                 Mock.Of<IReadmeRewriterRunner>(MockBehavior.Strict),
                 Mock.Of<IIOHelper>(MockBehavior.Strict));
             int exitCode = runner.Run(args);
@@ -83,7 +104,19 @@ namespace CLITests
         {
             string[] args = ["arg1", "arg2"];
             var mockParser = new Mock<IReadmeRewriterCommandLineParser>();
-            ReadmeRewriterParseResult parserResult = new("repourl", "", null, null, GitRefKind.Auto, "", "", false, false, false);
+            ReadmeRewriterParseResult parserResult = new(
+                "repourl",
+                "",
+                null,
+                null,
+                GitRefKind.Auto,
+                "",
+                "",
+                false,
+                false,
+                false,
+                "",
+                "");
             mockParser.Setup(m => m.Parse(args)).Returns((null, parserResult, null)).Verifiable();
             var mockOptionsProvider = new Mock<IOptionsProvider>();
             var options = new Options("projectdir", "repourl", "reporef", "readmerel", RepoReadmeRewriter.Processing.RewriteTagsOptions.ErrorOnHtml, null, "outputreadme");

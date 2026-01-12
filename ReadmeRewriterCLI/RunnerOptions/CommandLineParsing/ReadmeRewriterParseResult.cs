@@ -10,7 +10,9 @@
         string outputReadme,
         bool errorOnHtml,
         bool removeHtml,
-        bool extractDetailsSummary
+        bool extractDetailsSummary,
+        string errorOnHtmlOptionName,
+        string removeHtmlOptionName
     )
     {
         public string RepoUrl { get; } = repoUrl;
@@ -32,5 +34,7 @@
         public bool RemoveHtml { get; } = removeHtml;
 
         public bool ExtractDetailsSummary { get; } = extractDetailsSummary;
+        public string ErrorOnHtmlOptionName { get; } = errorOnHtmlOptionName;
+        public string RemoveHtmlOptionName { get; } = removeHtmlOptionName;
     }
 }

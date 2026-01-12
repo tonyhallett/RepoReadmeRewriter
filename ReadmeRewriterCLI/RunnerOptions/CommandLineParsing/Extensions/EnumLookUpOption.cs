@@ -1,4 +1,5 @@
 ﻿using System.CommandLine;
+using System.CommandLine.Completions;
 
 namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Extensions
 {
@@ -12,6 +13,7 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Extensions
             params string[] aliases) : base(name, aliases
         )
         {
+            DefaultValueFactory = (_) => default!;
             CustomParser = (argumentResult) =>
             {
                 if (argumentResult.Tokens.Count == 0)
@@ -39,6 +41,16 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Extensions
             _lookup = lookup;
         }
 
-        public Option<T> Build() => AcceptOnlyFromAmong([.. _lookup.Values.SelectMany(v => v)]);
+        public Option<T> Build() {
+            Option<T> configured = AcceptOnlyFromAmong([.. _lookup.Values.SelectMany(v => v)]);
+            CompletionSources.Clear();
+            IEnumerable<CompletionItem> completionItems = _lookup.SelectMany(
+                kvp => kvp.Value.Select(value => new CompletionItem(
+                    value,
+                    kind: kvp.Key.ToString(),
+                    sortText: $"{kvp.Key}:{value}")));
+            CompletionSources.Add(ctx => completionItems);
+            return configured;
+        }
     }
 }

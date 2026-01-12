@@ -2,7 +2,6 @@
 using System.Text;
 using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Help;
 using Spectre.Console;
-using Spectre.Console.Rendering;
 
 namespace ReadmeRewriterCLI.ConsoleWriting
 {
@@ -34,13 +33,13 @@ namespace ReadmeRewriterCLI.ConsoleWriting
         private sealed class OptionsLayout(
             List<IOptionInfo> requiredOptions,
             List<IOptionInfo> optionalOptions,
-            bool hasDefault,
+            bool hasDefaultOrCompletions,
             bool hasAliases
         )
         {
             public List<IOptionInfo> RequiredOptions { get; } = requiredOptions;
             public List<IOptionInfo> OptionalOptions { get; } = optionalOptions;
-            public bool HasDefaults { get; } = hasDefault;
+            public bool HasDefaultsOrCompletions { get; } = hasDefaultOrCompletions;
             public bool HasAliases { get; } = hasAliases;
         }
         public void WriteHelp(IArgumentsOptionsInfo helpOutput)
@@ -122,26 +121,36 @@ namespace ReadmeRewriterCLI.ConsoleWriting
 
                 TableColumn tc1 = new("");
                 TableColumn aliasesColumn = new("Aliases");
-                TableColumn defaultColumn = new("Default");
+                TableColumn valuesColumn = new("Values");
                 TableColumn descriptionColumn = new("");
 
-                Table table = new Table()
+                Table table = new()
                 {
                     Expand = true
-                }.AddColumns(tc1, aliasesColumn,defaultColumn, descriptionColumn);
+                };
+                AddColumns();
                 
                 // exception if add rows before columns
                 AddRequiredOptions();
                 AddOptionalOptions();
 
-                if (!optionsLayout.HasDefaults)
-                {
-                    defaultColumn.Width = 0;
-                }
+                void AddColumns() => GetColumns().ForEach((col) => table.AddColumn(col));
 
-                if (!optionsLayout.HasAliases)
+                List<string> GetColumns()
                 {
-                    aliasesColumn.Width = 0;
+                    var columns = new List<string> { ""};
+                    if(optionsLayout.HasAliases)
+                    {
+                        columns.Add("Aliases");
+                    }
+
+                    if (optionsLayout.HasDefaultsOrCompletions)
+                    {
+                        columns.Add("Values");
+                    }
+
+                    columns.Add("Description");
+                    return columns;
                 }
 
                 void AddOptionalOptions()
@@ -172,9 +181,36 @@ namespace ReadmeRewriterCLI.ConsoleWriting
                 {
                     foreach (IOptionInfo option in options)
                     {
-                        string aliases = string.Join(", ", option.Aliases);
-                        string defaultValue = option.DefaultValue ?? "";
-                        _ = table.AddRow(option.Name,aliases, defaultValue, option.Description ?? "");
+                        bool addedMainRow = false;
+                        if(option.DefaultValue != null)
+                        {
+                            AddMainRow($"Default : {option.DefaultValue}");
+                        }
+
+                        option.CompletionLines.ForEach(AddRow);
+                        if(!addedMainRow)
+                        {
+                            AddMainRow("");
+                        }
+
+                        void AddRow(string value)
+                        {
+                            if(addedMainRow)
+                            {
+                                _ = table.AddRow("", "", value, "");
+                            }
+                            else
+                            {
+                                AddMainRow(value);
+                            }
+                        }
+
+                        void AddMainRow(string value)
+                        {
+                            string aliases = string.Join(", ", option.Aliases);
+                            _ = table.AddRow(option.Name, aliases, value, option.Description ?? "");
+                            addedMainRow = true;
+                        }
                     }
                 }
 
@@ -183,7 +219,7 @@ namespace ReadmeRewriterCLI.ConsoleWriting
                     List<IOptionInfo> requiredOptions = [];
                     List<IOptionInfo> optionalOptions = [];
                     bool hasAliases = false;
-                    bool hasDefault = false;
+                    bool hasDefaultOrCompletions = false;
 
                     foreach(IOptionInfo option in helpOutput.Options)
                     {
@@ -192,16 +228,16 @@ namespace ReadmeRewriterCLI.ConsoleWriting
                             hasAliases = true;
                         }
 
-                        if (!hasDefault && option.DefaultValue != null)
+                        if (!hasDefaultOrCompletions && (option.DefaultValue != null || option.CompletionLines.Count > 0))
                         {
-                            hasDefault = true;
+                            hasDefaultOrCompletions = true;
                         }
 
                         List<IOptionInfo> list = option.Required ? requiredOptions : optionalOptions;
                         list.Add(option);
                     }
 
-                    return new OptionsLayout(requiredOptions, optionalOptions, hasDefault, hasAliases);
+                    return new OptionsLayout(requiredOptions, optionalOptions, hasDefaultOrCompletions, hasAliases);
                 }
 
                 WriteHeader("Options");

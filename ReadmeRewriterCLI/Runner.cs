@@ -28,6 +28,7 @@ namespace ReadmeRewriterCLI
 
         public int Run(string[] args)
         {
+            parser.SetRefKindAutoBehaviour(optionsProvider.RefKindAutoBehaviour);
             (IEnumerable<string>? Errors, ReadmeRewriterParseResult? Result, IArgumentsOptionsInfo? helpOutput) = parser.Parse(args);
             if (Errors != null)
             {

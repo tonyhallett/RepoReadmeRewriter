@@ -15,13 +15,11 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Help
 
         public ICollection<string> Aliases { get; }
 
-        public List<string>? Completions { get; }
+        public List<string> CompletionLines { get; } = [];
 
         public OptionInfo(Option option)
         {
-            // could create custom interface type to support help if needed.  ICustomizableHelpOption => GetOptionInfo
             Required = option.Required;
-            // System.CommandLine - HelpName => <{HelpName}>
             Name = option.Name;
             if (option.HasDefaultValue)
             {
@@ -36,12 +34,13 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Help
                 valueType == typeof(bool?) ||
                 option.Arity.MaximumNumberOfValues <= 0)
             {
-                return; // todo
+                return;
             }
 
-            Completions = [.. option
-					.GetCompletions(CompletionContext.Empty)
-					.Select(item => item.Label)];
+            IEnumerable<IGrouping<string?, CompletionItem>> completionItemsKindGrouping = option.GetCompletions(CompletionContext.Empty).GroupBy(ci => ci.Kind);
+            CompletionLines = [.. completionItemsKindGrouping.Select(g =>
+                // sorting ?
+                string.Join(",", g.Select(ci => ci.Label)))];
         }
     }
 }

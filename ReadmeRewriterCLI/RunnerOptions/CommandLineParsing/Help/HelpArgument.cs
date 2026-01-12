@@ -2,11 +2,8 @@
 
 namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Help
 {
-    internal class HelpArgument<T> : Argument<T>, IHelpDefaultValue
+    internal sealed class HelpArgument<T>(string name, string defaultValue) : Argument<T>(name), IHelpDefaultValue
     {
-        public HelpArgument(string name, string defaultValue) : base(name)
-            => DefaultValue = defaultValue;
-
-        public string DefaultValue { get; }
+        public string DefaultValue { get; } = defaultValue;
     }
 }

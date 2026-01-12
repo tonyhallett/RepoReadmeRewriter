@@ -46,7 +46,7 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing
         
         internal static readonly Option<GitRefKind> s_gitRefKindOption = new EnumLookUpOption<GitRefKind>(s_gitRefKindOptionName, s_gitRefKindLookup)
         {
-            Description = "Resolve ref using git. Defaults to commit SHA or master",
+            Description = "Resolve ref using git.",
         }.Build();
 
         internal static readonly Option<bool> s_errorOnHtmlOption = new("--error-on-html")
@@ -69,9 +69,12 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing
             Description = "Path to JSON remove/replace settings file"
         }.AcceptLegalFilePathsOnly();
 
+        public void SetRefKindAutoBehaviour(string refKindAutoBehaviour)
+            => s_gitRefKindOption.Description = $"{s_gitRefKindOption.Description!} Defaults to {refKindAutoBehaviour}";
+
         public (IEnumerable<string>? errors, ReadmeRewriterParseResult? result, IArgumentsOptionsInfo? helpOutput) Parse(IReadOnlyList<string> args)
         {
-            CommandLineHelpParseResult helpParseResult = CommandLineHelpParser.Parse(new("ReadmeRewriter CLI")
+            RootCommand rootCommand = new("ReadmeRewriter CLI")
             {
                 s_projectDirArg,
                 s_repoUrlOption,
@@ -82,8 +85,9 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing
                 s_errorOnHtmlOption,
                 s_removeHtmlOption,
                 s_extractDetailsSummaryOption,
-                 s_configOption,
-            }, args);
+                 s_configOption
+           };
+            CommandLineHelpParseResult helpParseResult = CommandLineHelpParser.Parse(rootCommand.RemoveVersionOption(), args);
 
             ParseResult parseResult = helpParseResult.ParseResult;
 
@@ -107,7 +111,10 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing
                 parseResult.GetDefinedStringOptionValue(s_outputReadmeOption),
                 parseResult.GetValue(s_errorOnHtmlOption),
                 parseResult.GetValue(s_removeHtmlOption),
-                parseResult.GetValue(s_extractDetailsSummaryOption)), null);
+                parseResult.GetValue(s_extractDetailsSummaryOption),
+                s_errorOnHtmlOption.Name,
+                s_removeHtmlOption.Name
+                ), null);
         }
     }
 }
