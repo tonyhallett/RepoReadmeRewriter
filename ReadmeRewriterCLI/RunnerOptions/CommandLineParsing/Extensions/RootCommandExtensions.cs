@@ -11,6 +11,7 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Extensions
             {
                 _ = command.Options.Remove(versionOption);
             }
+
             return command;
         }
     }

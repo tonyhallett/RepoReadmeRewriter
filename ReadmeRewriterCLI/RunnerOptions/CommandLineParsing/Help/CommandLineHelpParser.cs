@@ -17,7 +17,7 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Help
         private static bool InvokeHelp(ParseResult parseResult)
         {
             _ = parseResult.Invoke();
-           return s_loggingHelpAction.Invoked;
+            return s_loggingHelpAction.Invoked;
         }
 
         private static void ReplaceHelpOptionAction(RootCommand rootCommand)

@@ -8,13 +8,13 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing
     {
         static ReadmeRewriterCommandLineParser()
         {
-            s_repoUrlOption = DefinedStringOption.CreateRequired("--repo-url","-r");
+            s_repoUrlOption = DefinedStringOption.CreateRequired("--repo-url", "-r");
             s_repoUrlOption.Description = "GitHub or GitLab repository URL";
 
             s_readmeOption = DefinedStringOption.CreateDefault("--readme", (_) => "README.md");
             s_readmeOption.Description = "Readme relative path";
 
-            s_outputReadmeOption = DefinedStringOption.CreateRequired("--output","-o");
+            s_outputReadmeOption = DefinedStringOption.CreateRequired("--output", "-o");
             s_outputReadmeOption.Description = $"Output readme path, relative to {s_projectDirArgumentName} or absolute";
         }
         internal static readonly DefinedStringOption s_repoUrlOption;
@@ -43,7 +43,7 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing
             { GitRefKind.ShortCommitSha, ["short", "short-commit", "shortcommit"] },
             { GitRefKind.BranchName, ["branch", "branchname"] }
         };
-        
+
         internal static readonly Option<GitRefKind> s_gitRefKindOption = new EnumLookUpOption<GitRefKind>(s_gitRefKindOptionName, s_gitRefKindLookup)
         {
             Description = "Resolve ref using git.",

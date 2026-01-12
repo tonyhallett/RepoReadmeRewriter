@@ -498,7 +498,7 @@ namespace CLITests
                 Assert.That(options, Is.Null);
             });
         }
-        
+
         [Test]
         public void Should_Error_If_Cannot_Find_Git_Root()
         {

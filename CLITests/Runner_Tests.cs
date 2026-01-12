@@ -76,8 +76,9 @@ namespace CLITests
             var mockParser = new Mock<IReadmeRewriterCommandLineParser>();
             IArgumentsOptionsInfo cliHelp = Mock.Of<IArgumentsOptionsInfo>();
             bool parseInvoked = false;
-            _ = mockParser.Setup(m => m.SetRefKindAutoBehaviour("somebehaviour")).Callback(() => {
-                if(parseInvoked)
+            _ = mockParser.Setup(m => m.SetRefKindAutoBehaviour("somebehaviour")).Callback(() =>
+            {
+                if (parseInvoked)
                 {
                     Assert.Fail("SetRefKindAutoBehaviour should be called before Parse");
                 }

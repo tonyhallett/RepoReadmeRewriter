@@ -41,7 +41,8 @@ namespace ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Extensions
             _lookup = lookup;
         }
 
-        public Option<T> Build() {
+        public Option<T> Build()
+        {
             Option<T> configured = AcceptOnlyFromAmong([.. _lookup.Values.SelectMany(v => v)]);
             CompletionSources.Clear();
             IEnumerable<CompletionItem> completionItems = _lookup.SelectMany(

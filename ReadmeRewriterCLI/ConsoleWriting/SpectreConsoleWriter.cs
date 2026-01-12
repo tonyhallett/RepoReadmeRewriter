@@ -114,10 +114,10 @@ namespace ReadmeRewriterCLI.ConsoleWriting
                 WriteHeader("Arguments");
                 _ansiConsole.Write(table);
             }
-        
+
             void WriteOptions()
             {
-                OptionsLayout optionsLayout  = BuildOptionsLayout();
+                OptionsLayout optionsLayout = BuildOptionsLayout();
 
                 TableColumn tc1 = new("");
                 TableColumn aliasesColumn = new("Aliases");
@@ -129,7 +129,7 @@ namespace ReadmeRewriterCLI.ConsoleWriting
                     Expand = true
                 };
                 AddColumns();
-                
+
                 // exception if add rows before columns
                 AddRequiredOptions();
                 AddOptionalOptions();
@@ -138,8 +138,8 @@ namespace ReadmeRewriterCLI.ConsoleWriting
 
                 List<string> GetColumns()
                 {
-                    var columns = new List<string> { ""};
-                    if(optionsLayout.HasAliases)
+                    var columns = new List<string> { "" };
+                    if (optionsLayout.HasAliases)
                     {
                         columns.Add("Aliases");
                     }
@@ -182,20 +182,20 @@ namespace ReadmeRewriterCLI.ConsoleWriting
                     foreach (IOptionInfo option in options)
                     {
                         bool addedMainRow = false;
-                        if(option.DefaultValue != null)
+                        if (option.DefaultValue != null)
                         {
                             AddMainRow($"Default : {option.DefaultValue}");
                         }
 
                         option.CompletionLines.ForEach(AddRow);
-                        if(!addedMainRow)
+                        if (!addedMainRow)
                         {
                             AddMainRow("");
                         }
 
                         void AddRow(string value)
                         {
-                            if(addedMainRow)
+                            if (addedMainRow)
                             {
                                 _ = table.AddRow("", "", value, "");
                             }
@@ -221,9 +221,9 @@ namespace ReadmeRewriterCLI.ConsoleWriting
                     bool hasAliases = false;
                     bool hasDefaultOrCompletions = false;
 
-                    foreach(IOptionInfo option in helpOutput.Options)
+                    foreach (IOptionInfo option in helpOutput.Options)
                     {
-                        if(!hasAliases && option.Aliases.Count > 0)
+                        if (!hasAliases && option.Aliases.Count > 0)
                         {
                             hasAliases = true;
                         }
