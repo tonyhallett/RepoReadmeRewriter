@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using ReadmeRewriterCLI.ConsoleWriting;
+﻿using ReadmeRewriterCLI.ConsoleWriting;
 using ReadmeRewriterCLI.RunnerOptions;
 using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing;
 using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Help;
@@ -15,17 +14,6 @@ namespace ReadmeRewriterCLI
         IReadmeRewriterRunner readmeRewriterRunner,
         IIOHelper ioHelper)
     {
-        [ExcludeFromCodeCoverage]
-        public Runner() : this(
-            new ReadmeRewriterCommandLineParser(),
-            SpectreConsoleWriter.Instance(),
-            new OptionsProvider(),
-            new ReadmeRewriterRunner(),
-            IOHelper.Instance
-            )
-        {
-        }
-
         public int Run(string[] args)
         {
             parser.SetRefKindAutoBehaviour(optionsProvider.RefKindAutoBehaviour);

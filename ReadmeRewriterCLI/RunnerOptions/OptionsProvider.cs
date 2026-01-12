@@ -1,8 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing;
+﻿using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing;
 using ReadmeRewriterCLI.RunnerOptions.Config;
 using ReadmeRewriterCLI.RunnerOptions.Git;
-using ReadmeRewriterCLI.RunnerOptions.RemoveReplace;
 using RepoReadmeRewriter.IOWrapper;
 using RepoReadmeRewriter.Processing;
 using RepoReadmeRewriter.RemoveReplace.Settings;
@@ -17,15 +15,6 @@ namespace ReadmeRewriterCLI.RunnerOptions
         ) : IOptionsProvider
     {
         public string RefKindAutoBehaviour { get; } = "commit SHA or master";
-
-        [ExcludeFromCodeCoverage]
-        public OptionsProvider() : this(
-            ConfigFileService.Instance,
-            new GitHelper(),
-            new RemoveReplaceConfigLoader(),
-            IOHelper.Instance)
-        {
-        }
 
         public (Options? options, IEnumerable<string>? errors) Provide(ReadmeRewriterParseResult parseResult)
         {

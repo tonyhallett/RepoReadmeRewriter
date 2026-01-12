@@ -14,7 +14,9 @@ namespace RepoReadmeRewriter.Runner
         private readonly IReadmeRewriter _readmeRewriter;
         private readonly IMessageProvider _messageProvider;
 
-        public ReadmeRewriterRunner(IImageDomainValidator imageDomainValidator, IMessageProvider messageProvider)
+        public ReadmeRewriterRunner(
+            IImageDomainValidator imageDomainValidator,
+            IMessageProvider messageProvider)
         : this(
             IOHelper.Instance,
             new RepoReadmeFilePathsProvider(),
@@ -22,15 +24,6 @@ namespace RepoReadmeRewriter.Runner
             messageProvider)
             {
             }
-
-        public ReadmeRewriterRunner()
-            : this(
-            IOHelper.Instance,
-            new RepoReadmeFilePathsProvider(),
-            new ReadmeRewriter(new NoopImageDomainValidator()),
-            new MessageProvider())
-        {
-        }
 
         internal ReadmeRewriterRunner(
             IIOHelper ioHelper,

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using ReadmeRewriterCLI.RunnerOptions.Config;
+﻿using ReadmeRewriterCLI.RunnerOptions.Config;
 using RepoReadmeRewriter.IOWrapper;
 using RepoReadmeRewriter.RemoveReplace.Settings;
 
@@ -16,15 +15,6 @@ namespace ReadmeRewriterCLI.RunnerOptions.RemoveReplace
         {
             public string Start { get; } = start;
             public string? End { get; } = end;
-        }
-
-        [ExcludeFromCodeCoverage]
-        public RemoveReplaceConfigLoader() : this(
-            IOHelper.Instance,
-            new RemoveReplaceConfigDeserializer(),
-            ConfigFileService.Instance,
-            new RemoveReplaceWordsParserWrapper())
-        {
         }
 
         public RemoveReplaceSettings? Load(

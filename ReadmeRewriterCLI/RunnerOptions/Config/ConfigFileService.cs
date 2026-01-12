@@ -1,16 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using RepoReadmeRewriter.IOWrapper;
+﻿using RepoReadmeRewriter.IOWrapper;
 
 namespace ReadmeRewriterCLI.RunnerOptions.Config
 {
     internal sealed class ConfigFileService(IIOHelper ioHelper) : IConfigFileService
     {
-        [ExcludeFromCodeCoverage]
-        public static ConfigFileService Instance { get; private set; } = null!;
-
-        [ExcludeFromCodeCoverage]
-        static ConfigFileService() => Instance = new ConfigFileService(IOHelper.Instance);
-
         private sealed class RelativeDirectories(string configDirectory, string projectDirectory)
         {
             internal string GetDirectory(bool getConfigDirectory) => getConfigDirectory ? configDirectory : projectDirectory;

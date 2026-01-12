@@ -6,29 +6,13 @@ using Spectre.Console;
 namespace ReadmeRewriterCLI.ConsoleWriting
 {
     [ExcludeFromCodeCoverage]
-    internal sealed class SpectreConsoleWriter : IConsoleWriter
+    internal sealed class SpectreConsoleWriter(IAnsiConsole ansiConsole) : IConsoleWriter
     {
-        private readonly IAnsiConsole _ansiConsole;
-        private SpectreConsoleWriter(IAnsiConsole ansiConsole) => _ansiConsole = ansiConsole;
-        private static IConsoleWriter? s_instance;
-        public static IConsoleWriter Instance()
-        {
-            if (s_instance != null)
-            {
-                return s_instance;
-            }
+        public void WriteLine(string message) => ansiConsole.WriteLine(message);
 
-            Console.OutputEncoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
-            s_instance = new SpectreConsoleWriter(AnsiConsole.Console);
+        public void WriteErrorLine(string message) => ansiConsole.MarkupLine($"[red]{message}[/]");
 
-            return s_instance;
-        }
-
-        public void WriteLine(string message) => _ansiConsole.WriteLine(message);
-
-        public void WriteErrorLine(string message) => _ansiConsole.MarkupLine($"[red]{message}[/]");
-
-        public void WriteWarningLine(string message) => _ansiConsole.MarkupLine($"[yellow]{message}[/]");
+        public void WriteWarningLine(string message) => ansiConsole.MarkupLine($"[yellow]{message}[/]");
 
         private sealed class OptionsLayout(
             List<IOptionInfo> requiredOptions,
@@ -79,11 +63,11 @@ namespace ReadmeRewriterCLI.ConsoleWriting
             void WriteDescription()
             {
                 WriteHeader("About");
-                _ansiConsole.WriteLine("A CLI tool to help you rewrite your GitHub or GitLab relative README assets to absolute.");
+                ansiConsole.WriteLine("A CLI tool to help you rewrite your GitHub or GitLab relative README assets to absolute.");
                 // todo need to add readme for cli
                 // string readmePath = "https://github.com/tonyhallett/NugetRepoReadme/blob/master/README.md";
                 // _ansiConsole.MarkupLine($"See [link={readmePath}]readme[/] for full details");
-                _ansiConsole.WriteLine();
+                ansiConsole.WriteLine();
             }
 
             void WriteUsage()
@@ -102,8 +86,8 @@ namespace ReadmeRewriterCLI.ConsoleWriting
                 }
 
                 // note that MarkupLine throws when no [markup]...[/]
-                _ansiConsole.WriteLine(usageSb.ToString());
-                _ansiConsole.WriteLine();
+                ansiConsole.WriteLine(usageSb.ToString());
+                ansiConsole.WriteLine();
             }
 
             void WriteArguments()
@@ -141,7 +125,7 @@ namespace ReadmeRewriterCLI.ConsoleWriting
                 }
 
                 WriteHeader("Arguments");
-                _ansiConsole.Write(table);
+                ansiConsole.Write(table);
             }
 
             void WriteOptions()
@@ -244,12 +228,12 @@ namespace ReadmeRewriterCLI.ConsoleWriting
                 }
 
                 WriteHeader("Options");
-                _ansiConsole.Write(table);
+                ansiConsole.Write(table);
             }
 
             string GetHeader(string header) => $"[bold]{header}:[/]";
 
-            void WriteHeader(string header) => _ansiConsole.MarkupLine(GetHeader(header));
+            void WriteHeader(string header) => ansiConsole.MarkupLine(GetHeader(header));
         }
     }
 }
