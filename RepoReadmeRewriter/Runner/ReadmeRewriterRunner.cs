@@ -14,14 +14,14 @@ namespace RepoReadmeRewriter.Runner
         private readonly IReadmeRewriter _readmeRewriter;
         private readonly IMessageProvider _messageProvider;
 
-        public ReadmeRewriterRunner(IImageDomainValidator imageDomainValidator)
-    : this(
-    IOHelper.Instance,
-    new RepoReadmeFilePathsProvider(),
-    new ReadmeRewriter(imageDomainValidator),
-    new MessageProvider())
-        {
-        }
+        public ReadmeRewriterRunner(IImageDomainValidator imageDomainValidator, IMessageProvider messageProvider)
+        : this(
+            IOHelper.Instance,
+            new RepoReadmeFilePathsProvider(),
+            new ReadmeRewriter(imageDomainValidator),
+            messageProvider)
+            {
+            }
 
         public ReadmeRewriterRunner()
             : this(

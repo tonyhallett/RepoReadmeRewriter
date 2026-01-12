@@ -28,8 +28,8 @@ namespace CLITests
                 Assert.That(helpArgument.DefaultValue, Is.EqualTo("Environment.CurrentDirectory"));
 
                 List<IOptionInfo> options = helpOutput.Options;
-                // includes readme and version
-                Assert.That(options, Has.Count.EqualTo(11));
+                // includes readme ( version removed )
+                Assert.That(options, Has.Count.EqualTo(10));
 
                 ShouldNotHaveCompletionLinesForBooleanOptions();
                 ShouldHaveRequiredOptions();

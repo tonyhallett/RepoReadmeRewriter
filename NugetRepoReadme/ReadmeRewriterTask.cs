@@ -3,12 +3,10 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Build.Framework;
 using NugetRepoReadme.MSBuild;
-using NugetRepoReadme.MSBuildHelpers;
 using NugetRepoReadme.NugetValidation;
 using NugetRepoReadme.RemoveReplace;
 using RepoReadmeRewriter.Processing;
 using RepoReadmeRewriter.Runner;
-using InputOutputHelper = RepoReadmeRewriter.IOWrapper.IOHelper;
 
 namespace NugetRepoReadme
 {
@@ -57,14 +55,11 @@ namespace NugetRepoReadme
 
         internal IMessageProvider MessageProvider { get; set; } = MSBuild.MessageProvider.Instance;
 
-        internal IRemoveReplaceSettingsProvider RemoveReplaceSettingsProvider { get; set; } = new RemoveReplaceSettingsProvider(
-            new MSBuildMetadataProvider(),
-            new RemoveCommentsIdentifiersParser(MSBuild.MessageProvider.Instance),
-            new RemovalOrReplacementProvider(InputOutputHelper.Instance, MSBuild.MessageProvider.Instance),
-            new RemoveReplaceWordsProvider(InputOutputHelper.Instance, MSBuild.MessageProvider.Instance),
-            MSBuild.MessageProvider.Instance);
+        internal IRemoveReplaceSettingsProvider RemoveReplaceSettingsProvider { get; set; } = new RemoveReplaceSettingsProvider();
 
-        internal IReadmeRewriterRunner Runner { get; set; } = new ReadmeRewriterRunner(new NuGetImageDomainValidator());
+        internal IReadmeRewriterRunner Runner { get; set; } = new ReadmeRewriterRunner(
+            new NuGetImageDomainValidator(),
+            MSBuild.MessageProvider.Instance);
 
         public override bool Execute()
         {

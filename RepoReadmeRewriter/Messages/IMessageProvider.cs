@@ -1,6 +1,6 @@
 ﻿namespace RepoReadmeRewriter.Messages
 {
-    internal interface IMessageProvider
+    public interface IMessageProvider
     {
         string UnsupportedImageDomain(string imageDomain);
 

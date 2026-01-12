@@ -41,7 +41,34 @@ namespace ReadmeRewriterCLI.ConsoleWriting
             public List<IOptionInfo> OptionalOptions { get; } = optionalOptions;
             public bool HasDefaultsOrCompletions { get; } = hasDefaultOrCompletions;
             public bool HasAliases { get; } = hasAliases;
+
+            public static OptionsLayout Build(List<IOptionInfo> options)
+            {
+                List<IOptionInfo> requiredOptions = [];
+                List<IOptionInfo> optionalOptions = [];
+                bool hasAliases = false;
+                bool hasDefaultOrCompletions = false;
+
+                foreach (IOptionInfo option in options)
+                {
+                    if (!hasAliases && option.Aliases.Count > 0)
+                    {
+                        hasAliases = true;
+                    }
+
+                    if (!hasDefaultOrCompletions && (option.DefaultValue != null || option.CompletionLines.Count > 0))
+                    {
+                        hasDefaultOrCompletions = true;
+                    }
+
+                    List<IOptionInfo> list = option.Required ? requiredOptions : optionalOptions;
+                    list.Add(option);
+                }
+
+                return new OptionsLayout(requiredOptions, optionalOptions, hasDefaultOrCompletions, hasAliases);
+            }
         }
+
         public void WriteHelp(IArgumentsOptionsInfo helpOutput)
         {
             WriteDescription();
@@ -53,7 +80,9 @@ namespace ReadmeRewriterCLI.ConsoleWriting
             {
                 WriteHeader("About");
                 _ansiConsole.WriteLine("A CLI tool to help you rewrite your GitHub or GitLab relative README assets to absolute.");
-                _ansiConsole.WriteLine("And more....");
+                // todo need to add readme for cli
+                // string readmePath = "https://github.com/tonyhallett/NugetRepoReadme/blob/master/README.md";
+                // _ansiConsole.MarkupLine($"See [link={readmePath}]readme[/] for full details");
                 _ansiConsole.WriteLine();
             }
 
@@ -117,7 +146,7 @@ namespace ReadmeRewriterCLI.ConsoleWriting
 
             void WriteOptions()
             {
-                OptionsLayout optionsLayout = BuildOptionsLayout();
+                OptionsLayout optionsLayout = OptionsLayout.Build(helpOutput.Options);
 
                 TableColumn tc1 = new("");
                 TableColumn aliasesColumn = new("Aliases");
@@ -212,32 +241,6 @@ namespace ReadmeRewriterCLI.ConsoleWriting
                             addedMainRow = true;
                         }
                     }
-                }
-
-                OptionsLayout BuildOptionsLayout()
-                {
-                    List<IOptionInfo> requiredOptions = [];
-                    List<IOptionInfo> optionalOptions = [];
-                    bool hasAliases = false;
-                    bool hasDefaultOrCompletions = false;
-
-                    foreach (IOptionInfo option in helpOutput.Options)
-                    {
-                        if (!hasAliases && option.Aliases.Count > 0)
-                        {
-                            hasAliases = true;
-                        }
-
-                        if (!hasDefaultOrCompletions && (option.DefaultValue != null || option.CompletionLines.Count > 0))
-                        {
-                            hasDefaultOrCompletions = true;
-                        }
-
-                        List<IOptionInfo> list = option.Required ? requiredOptions : optionalOptions;
-                        list.Add(option);
-                    }
-
-                    return new OptionsLayout(requiredOptions, optionalOptions, hasDefaultOrCompletions, hasAliases);
                 }
 
                 WriteHeader("Options");
