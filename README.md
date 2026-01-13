@@ -5,5 +5,5 @@ This repository contains the core **RepoReadmeRewriter** library used by:
 - CLI tool : https://www.nuget.org/packages/RepoReadmeReadmeRewriter.CLI/
 
 Documentation:
-- [CustomTask](NugetRepoReadme/README.md)
+- [Custom Task](NugetRepoReadme/README.md)
 - [CLI](ReadmeRewriterCLI/README.md)
