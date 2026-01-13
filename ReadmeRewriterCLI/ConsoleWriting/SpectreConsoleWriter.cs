@@ -64,17 +64,16 @@ namespace ReadmeRewriterCLI.ConsoleWriting
             {
                 WriteHeader("About");
                 ansiConsole.WriteLine("A CLI tool to help you rewrite your GitHub or GitLab relative README assets to absolute.");
-                // todo need to add readme for cli
-                // string readmePath = "https://github.com/tonyhallett/NugetRepoReadme/blob/master/README.md";
-                // _ansiConsole.MarkupLine($"See [link={readmePath}]readme[/] for full details");
+                string readmePath = "https://github.com/tonyhallett/RepoReadmeRewriter/blob/master/ReadmeRewriterCLI/README.md";
+                ansiConsole.MarkupLine($"See [link={readmePath}]readme[/] for full details");
                 ansiConsole.WriteLine();
             }
 
             void WriteUsage()
             {
                 WriteHeader("Usage");
-                string exeName = "ReadmeRewriterCLI";
-                var usageSb = new StringBuilder(exeName + " ");
+                const string toolName = "reporeadmerewriter";
+                var usageSb = new StringBuilder(toolName + " ");
                 foreach (IArgumentInfo argument in helpOutput.Arguments)
                 {
                     _ = usageSb.Append($"<{argument.Name}> ");

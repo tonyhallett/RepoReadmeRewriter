@@ -7,6 +7,24 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+    <PropertyGroup>
+      <Version>1.0.0</Version>
+      <Authors>TonyHUk</Authors>
+      <Description>CLI for creating a readme with absolute links from a readme with relative links hosted on GitHub or GitLab.</Description>
+      <Copyright>Copyright © 2026 Tony Hallett</Copyright>
+      <RepositoryUrl>https://github.com/tonyhallett/RepoReadmeRewriter.git</RepositoryUrl>
+      <PackageTags>readme;GitHub;GitLab;relative;links;images</PackageTags>
+      <PackageLicenseExpression>MIT</PackageLicenseExpression>
+      <PackageProjectUrl>https://github.com/tonyhallett/RepoReadmeRewriter</PackageProjectUrl>
+      <Title>ReadMe from relative GitHub or Github readme.</Title>
+      <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+      <PackAsTool>true</PackAsTool>
+      <ToolCommandName>reporeadmerewriter</ToolCommandName>
+      <PackageOutputPath>./nupkg</PackageOutputPath>
+      <PackageReadmeFile>README.md</PackageReadmeFile>
+      <PackageId>RepoReadmeReadmeRewriter.CLI</PackageId>
+	</PropertyGroup>
+	
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
     <PackageReference Include="Spectre.Console" Version="0.54.0" />
@@ -16,5 +34,9 @@
   <ItemGroup>
     <ProjectReference Include="..\RepoReadmeRewriter\RepoReadmeRewriter.csproj" />
   </ItemGroup>
-
+  <ItemGroup>
+    <None Include="README.md"
+              Pack="true"
+              PackagePath="/" />
+	</ItemGroup>
 </Project>
