@@ -4,7 +4,6 @@ using Microsoft.Build.Framework;
 using NugetRepoReadme.MSBuild;
 using NugetRepoReadme.MSBuildHelpers;
 using RepoReadmeRewriter.RemoveReplace.Settings;
-using InputOutputHelper = RepoReadmeRewriter.IOWrapper.IOHelper;
 
 namespace NugetRepoReadme.RemoveReplace
 {
@@ -15,16 +14,6 @@ namespace NugetRepoReadme.RemoveReplace
         private readonly IRemovalOrReplacementProvider _removalOrReplacementProvider;
         private readonly IRemoveReplaceWordsProvider _removeReplaceWordsProvider;
         private readonly IMessageProvider _messageProvider;
-
-        public RemoveReplaceSettingsProvider()
-            : this(
-                new MSBuildMetadataProvider(),
-                new RemoveCommentsIdentifiersParser(MessageProvider.Instance),
-                new RemovalOrReplacementProvider(InputOutputHelper.Instance, MessageProvider.Instance),
-                new RemoveReplaceWordsProvider(InputOutputHelper.Instance, MessageProvider.Instance),
-                MessageProvider.Instance)
-        {
-        }
 
         public RemoveReplaceSettingsProvider(
             IMSBuildMetadataProvider msBuildMetadataProvider,

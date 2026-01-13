@@ -11,10 +11,10 @@ namespace NugetRepoReadme.RemoveReplace
         private readonly IIOHelper _ioHelper;
         private readonly IMessageProvider _messageProvider;
 
-        public RemoveReplaceWordsProvider(IIOHelper ioHelper, IMessageProvider instance)
+        public RemoveReplaceWordsProvider(IIOHelper ioHelper, IMessageProvider messageProvider)
         {
             _ioHelper = ioHelper;
-            _messageProvider = instance;
+            _messageProvider = messageProvider;
         }
 
         public List<RemoveReplaceWord> Provide(ITaskItem[]? removeReplaceWordsItems, IAddError addError)

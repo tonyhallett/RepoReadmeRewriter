@@ -50,12 +50,6 @@ namespace NugetRepoReadme.NugetValidation
 
         private static readonly HashSet<string> s_trustedImageDomains = new HashSet<string>(s_trustedImageDomainList, StringComparer.OrdinalIgnoreCase);
 
-        private NuGetTrustedImageDomains()
-        {
-        }
-
-        public static NuGetTrustedImageDomains Instance { get; } = new NuGetTrustedImageDomains();
-
         public bool IsImageDomainTrusted(string imageDomain)
             => imageDomain != null && s_trustedImageDomains.Contains(imageDomain);
     }

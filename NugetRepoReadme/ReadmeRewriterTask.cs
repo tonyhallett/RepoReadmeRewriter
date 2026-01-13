@@ -3,8 +3,8 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Build.Framework;
 using NugetRepoReadme.MSBuild;
-using NugetRepoReadme.NugetValidation;
 using NugetRepoReadme.RemoveReplace;
+using Pure.DI;
 using RepoReadmeRewriter.Processing;
 using RepoReadmeRewriter.Runner;
 
@@ -15,15 +15,12 @@ namespace NugetRepoReadme
         internal const RewriteTagsOptions DefaultRewriteTagsOptions = RepoReadmeRewriter.Processing.RewriteTagsOptions.None;
 
         [Required]
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-        public string ProjectDirectoryPath { get; set; }
+        public string ProjectDirectoryPath { get; set; } = string.Empty;
 
         [Output]
-        public string OutputReadme { get; set; }
+        public string OutputReadme { get; set; } = string.Empty;
 
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-
-        // one of these required
+        // one of these urls is required
         public string? RepositoryUrl { get; set; }
 
         public string? ReadmeRepositoryUrl { get; set; }
@@ -53,19 +50,22 @@ namespace NugetRepoReadme
 
         public ITaskItem[]? RemoveReplaceWordsItems { get; set; }
 
-        internal IMessageProvider MessageProvider { get; set; } = MSBuild.MessageProvider.Instance;
+        [Dependency]
+        internal IMessageProvider? MessageProvider { get; set; }
 
-        internal IRemoveReplaceSettingsProvider RemoveReplaceSettingsProvider { get; set; } = new RemoveReplaceSettingsProvider();
+        [Dependency]
+        internal IRemoveReplaceSettingsProvider? RemoveReplaceSettingsProvider { get; set; }
 
-        internal IReadmeRewriterRunner Runner { get; set; } = new ReadmeRewriterRunner(
-            new NuGetImageDomainValidator(),
-            MSBuild.MessageProvider.Instance);
+        [Dependency]
+        internal IReadmeRewriterRunner? Runner { get; set; }
+
+        public ReadmeRewriterTask() => _ = new Composition().Initialize(this);
 
         public override bool Execute()
         {
             LaunchDebuggerIfRequired();
 
-            IRemoveReplaceSettingsResult removeReplaceSettingsResult = RemoveReplaceSettingsProvider.Provide(
+            IRemoveReplaceSettingsResult removeReplaceSettingsResult = RemoveReplaceSettingsProvider!.Provide(
                 RemoveReplaceItems,
                 RemoveReplaceWordsItems,
                 RemoveCommentIdentifiers);
@@ -79,7 +79,7 @@ namespace NugetRepoReadme
             }
             else
             {
-                ReadmeRewriterRunnerResult result = Runner.Run(
+                ReadmeRewriterRunnerResult result = Runner!.Run(
                     ProjectDirectoryPath,
                     ReadmeRelativePath,
                     GetRepositoryUrl(),
@@ -128,7 +128,7 @@ namespace NugetRepoReadme
                 }
                 else
                 {
-                    Log.LogWarning(MessageProvider.CouldNotParseRewriteTagsOptionsUsingDefault(RewriteTagsOptions, DefaultRewriteTagsOptions));
+                    Log.LogWarning(MessageProvider!.CouldNotParseRewriteTagsOptionsUsingDefault(RewriteTagsOptions, DefaultRewriteTagsOptions));
                 }
             }
             else

@@ -282,7 +282,7 @@ namespace Tests
             Assert.Multiple(() =>
             {
                 Assert.That(taskResult, Is.EqualTo(false));
-                Assert.That(_readmeRewriterTask.OutputReadme, Is.Null);
+                Assert.That(_readmeRewriterTask.OutputReadme, Is.Empty);
                 Assert.That(_dummyLogBuildEngine.SingleErrorMessage(), Is.EqualTo("error"));
             });
         }

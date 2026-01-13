@@ -8,8 +8,6 @@ namespace NugetRepoReadme.MSBuild
     [ExcludeFromCodeCoverage]
     internal class MessageProvider : RewriterMessageProvider, IMessageProvider
     {
-        public static MessageProvider Instance { get; } = new MessageProvider();
-
         public override string CouldNotParseRepositoryUrl(string? propertyValue)
             => $"Could not parse the repository url :{propertyValue}.  Use either {MsBuildPropertyItemNames.RepositoryUrlProperty} or {MsBuildPropertyItemNames.ReadmeRepositoryUrlProperty} to supply a GitHub or GitLab repository url.";
 

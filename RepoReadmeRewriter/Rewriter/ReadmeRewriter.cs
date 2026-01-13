@@ -45,19 +45,6 @@ namespace RepoReadmeRewriter.Rewriter
         {
         }
 
-        public ReadmeRewriter()
-            : this(
-                new RewritableMarkdownElementsProvider(),
-                new ReadmeReplacer(),
-                new ReadmeMarkdownElementsProcessor(
-                    new NoopImageDomainValidator(),
-                    RepoUrlHelper.Instance,
-                    new HtmlFragmentParser()),
-                new RemoveReplacer(new RemoveReplaceRegexesFactory()),
-                RepoUrlHelper.Instance)
-        {
-        }
-
         // the ref is the branch, tag or commit sha
         public ReadmeRewriterResult Rewrite(
             RewriteTagsOptions rewriteTagsOptions,

@@ -9,11 +9,6 @@ namespace NugetRepoReadme.NugetValidation
         private readonly INuGetTrustedImageDomains _trustedImageDomains;
         private readonly INuGetGitHubBadgeValidator _nugetGitHubBadgeValidator;
 
-        public NuGetImageDomainValidator()
-            : this(NuGetTrustedImageDomains.Instance, new NuGetGitHubBadgeValidator())
-        {
-        }
-
         public NuGetImageDomainValidator(INuGetTrustedImageDomains trustedImageDomains, INuGetGitHubBadgeValidator nugetGitHubBadgeValidator)
         {
             _trustedImageDomains = trustedImageDomains;

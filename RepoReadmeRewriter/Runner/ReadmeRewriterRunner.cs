@@ -18,7 +18,7 @@ namespace RepoReadmeRewriter.Runner
             IImageDomainValidator imageDomainValidator,
             IMessageProvider messageProvider)
         : this(
-            IOHelper.Instance,
+            new IOHelper(),
             new RepoReadmeFilePathsProvider(),
             new ReadmeRewriter(imageDomainValidator),
             messageProvider)

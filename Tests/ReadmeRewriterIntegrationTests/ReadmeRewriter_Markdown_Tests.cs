@@ -108,7 +108,7 @@ Paragraph with *italic [italic link]({linkUrl})* and **bold [bold link]({linkUrl
         [TestCase("https://untrusted/file.gif", true)]
         public void Should_Report_On_Untrusted_Image_Domains(string imageUrl, bool untrusted)
         {
-            _ = MockImageDomainValidator.Setup(v => v.IsTrustedImageDomain(It.IsAny<string>())).Returns<string>(uriString => new NuGetImageDomainValidator().IsTrustedImageDomain(uriString));
+            _ = MockImageDomainValidator.Setup(v => v.IsTrustedImageDomain(It.IsAny<string>())).Returns<string>(uriString => new NuGetImageDomainValidator(new NuGetTrustedImageDomains(), new NuGetGitHubBadgeValidator()).IsTrustedImageDomain(uriString));
             string readmeContent = CreateMarkdownImage(imageUrl);
 
             ReadmeRewriterResult result = RewriteUserRepoMainReadMe(readmeContent);
@@ -134,13 +134,13 @@ Paragraph with *italic [italic link]({linkUrl})* and **bold [bold link]({linkUrl
         [Test]
         public void Should_Trust_GitHub_Badge_Urls()
         {
-            _ = MockImageDomainValidator.Setup(v => v.IsTrustedImageDomain(It.IsAny<string>())).Returns<string>(uriString => new NuGetImageDomainValidator().IsTrustedImageDomain(uriString));
+            _ = MockImageDomainValidator.Setup(v => v.IsTrustedImageDomain(It.IsAny<string>())).Returns<string>(uriString => new NuGetImageDomainValidator(new NuGetTrustedImageDomains(), new NuGetGitHubBadgeValidator()).IsTrustedImageDomain(uriString));
             const string workflowBadgeMarkdown = @"
 [![Workflow name](https://github.com/user/repo/actions/workflows/workflowname.yaml/badge.svg)](https://github.com/user/repo/actions/workflows/workflowname.yaml)
 ";
             Assert.Multiple(() =>
             {
-                Assert.That(NuGetTrustedImageDomains.Instance.IsImageDomainTrusted("github.com"), Is.False);
+                Assert.That(new NuGetTrustedImageDomains().IsImageDomainTrusted("github.com"), Is.False);
 
                 Assert.That(RewriteUserRepoMainReadMe(workflowBadgeMarkdown).UnsupportedImageDomains, Is.Empty);
             });
