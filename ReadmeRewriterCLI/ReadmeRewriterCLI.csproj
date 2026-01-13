@@ -10,19 +10,19 @@
     <PropertyGroup>
       <Version>1.0.0</Version>
       <Authors>TonyHUk</Authors>
-      <Description>CLI for creating a readme with absolute links from a readme with relative links hosted on GitHub or GitLab.</Description>
+      <Description>CLI for creating a readme with absolute links from a readme with relative links hosted on GitHub or GitLab.  Also supports removal and replacement.</Description>
       <Copyright>Copyright © 2026 Tony Hallett</Copyright>
       <RepositoryUrl>https://github.com/tonyhallett/RepoReadmeRewriter.git</RepositoryUrl>
       <PackageTags>readme;GitHub;GitLab;relative;links;images</PackageTags>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
       <PackageProjectUrl>https://github.com/tonyhallett/RepoReadmeRewriter</PackageProjectUrl>
-      <Title>ReadMe from relative GitHub or Github readme.</Title>
+      <Title>Rewrite a GitHub or Github readme.</Title>
       <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
       <PackAsTool>true</PackAsTool>
       <ToolCommandName>reporeadmerewriter</ToolCommandName>
       <PackageOutputPath>./nupkg</PackageOutputPath>
       <PackageReadmeFile>README.md</PackageReadmeFile>
-      <PackageId>RepoReadmeReadmeRewriter.CLI</PackageId>
+      <PackageId>RepoReadmeRewriter.CLI</PackageId>
 	</PropertyGroup>
 	
   <ItemGroup>
