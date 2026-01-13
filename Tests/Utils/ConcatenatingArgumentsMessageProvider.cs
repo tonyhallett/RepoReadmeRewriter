@@ -1,5 +1,5 @@
 ﻿using NugetRepoReadme.MSBuild;
-using NugetRepoReadme.Processing;
+using RepoReadmeRewriter.Processing;
 
 namespace Tests.Utils
 {

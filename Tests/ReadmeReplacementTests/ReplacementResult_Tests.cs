@@ -1,5 +1,5 @@
 ﻿using Markdig.Syntax;
-using NugetRepoReadme.ReadmeReplacement;
+using RepoReadmeRewriter.ReadmeReplacement;
 
 namespace Tests.ReadmeReplacementTests
 {

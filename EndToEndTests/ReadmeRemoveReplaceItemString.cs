@@ -1,6 +1,6 @@
 using System.Text;
 using NugetRepoReadme.MSBuild;
-using NugetRepoReadme.RemoveReplace.Settings;
+using RepoReadmeRewriter.RemoveReplace.Settings;
 
 namespace EndToEndTests
 {
@@ -15,7 +15,7 @@ namespace EndToEndTests
                 _ = sb.AppendLine(meta);
             }
 
-            _ = sb.AppendLine($@"</{MsBuildPropertyItemNames.ReadmeRemoveReplaceItem}>");
+            _ = sb.AppendLine($"</{MsBuildPropertyItemNames.ReadmeRemoveReplaceItem}>");
             return sb.ToString();
         }
 

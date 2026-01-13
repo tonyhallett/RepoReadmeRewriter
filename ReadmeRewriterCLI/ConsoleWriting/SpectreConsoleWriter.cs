@@ -1,0 +1,238 @@
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text;
+using ReadmeRewriterCLI.RunnerOptions.CommandLineParsing.Help;
+using Spectre.Console;
+
+namespace ReadmeRewriterCLI.ConsoleWriting
+{
+    [ExcludeFromCodeCoverage]
+    internal sealed class SpectreConsoleWriter(IAnsiConsole ansiConsole) : IConsoleWriter
+    {
+        public void WriteLine(string message) => ansiConsole.WriteLine(message);
+
+        public void WriteErrorLine(string message) => ansiConsole.MarkupLine($"[red]{message}[/]");
+
+        public void WriteWarningLine(string message) => ansiConsole.MarkupLine($"[yellow]{message}[/]");
+
+        private sealed class OptionsLayout(
+            List<IOptionInfo> requiredOptions,
+            List<IOptionInfo> optionalOptions,
+            bool hasDefaultOrCompletions,
+            bool hasAliases
+        )
+        {
+            public List<IOptionInfo> RequiredOptions { get; } = requiredOptions;
+            public List<IOptionInfo> OptionalOptions { get; } = optionalOptions;
+            public bool HasDefaultsOrCompletions { get; } = hasDefaultOrCompletions;
+            public bool HasAliases { get; } = hasAliases;
+
+            public static OptionsLayout Build(List<IOptionInfo> options)
+            {
+                List<IOptionInfo> requiredOptions = [];
+                List<IOptionInfo> optionalOptions = [];
+                bool hasAliases = false;
+                bool hasDefaultOrCompletions = false;
+
+                foreach (IOptionInfo option in options)
+                {
+                    if (!hasAliases && option.Aliases.Count > 0)
+                    {
+                        hasAliases = true;
+                    }
+
+                    if (!hasDefaultOrCompletions && (option.DefaultValue != null || option.CompletionLines.Count > 0))
+                    {
+                        hasDefaultOrCompletions = true;
+                    }
+
+                    List<IOptionInfo> list = option.Required ? requiredOptions : optionalOptions;
+                    list.Add(option);
+                }
+
+                return new OptionsLayout(requiredOptions, optionalOptions, hasDefaultOrCompletions, hasAliases);
+            }
+        }
+
+        public void WriteHelp(IArgumentsOptionsInfo helpOutput)
+        {
+            WriteDescription();
+            WriteUsage();
+            WriteArguments();
+            WriteOptions();
+
+            void WriteDescription()
+            {
+                WriteHeader("About");
+                ansiConsole.WriteLine("A CLI tool to help you rewrite your GitHub or GitLab relative README assets to absolute.");
+                string readmePath = "https://github.com/tonyhallett/RepoReadmeRewriter/blob/master/ReadmeRewriterCLI/README.md";
+                ansiConsole.MarkupLine($"See [link={readmePath}]readme[/] for full details");
+                ansiConsole.WriteLine();
+            }
+
+            void WriteUsage()
+            {
+                WriteHeader("Usage");
+                const string toolName = "reporeadmerewriter";
+                var usageSb = new StringBuilder(toolName + " ");
+                foreach (IArgumentInfo argument in helpOutput.Arguments)
+                {
+                    _ = usageSb.Append($"<{argument.Name}> ");
+                }
+
+                if (helpOutput.Options.Count > 0)
+                {
+                    _ = usageSb.Append("[options]");
+                }
+
+                // note that MarkupLine throws when no [markup]...[/]
+                ansiConsole.WriteLine(usageSb.ToString());
+                ansiConsole.WriteLine();
+            }
+
+            void WriteArguments()
+            {
+                if (helpOutput.Arguments.Count == 0)
+                {
+                    return;
+                }
+
+                TableColumn tc1 = new("");
+                TableColumn defaultColumn = new("Default");
+                TableColumn descriptionColumn = new("");
+                Table table = new Table()
+                {
+                    Expand = true
+                }.AddColumns(tc1, defaultColumn, descriptionColumn);
+
+                bool hasDefaultValue = false;
+
+                foreach (IArgumentInfo argument in helpOutput.Arguments)
+                {
+                    string defaultValue = argument.DefaultValue ?? "";
+                    if (!hasDefaultValue)
+                    {
+                        hasDefaultValue = argument.DefaultValue != null;
+                    }
+
+                    _ = table.AddRow($"<{argument.Name}>", defaultValue, argument.Description ?? "");
+                }
+
+                if (!hasDefaultValue)
+                {
+                    // this does not work as expected
+                    defaultColumn.Width = 0;
+                }
+
+                WriteHeader("Arguments");
+                ansiConsole.Write(table);
+            }
+
+            void WriteOptions()
+            {
+                OptionsLayout optionsLayout = OptionsLayout.Build(helpOutput.Options);
+
+                TableColumn tc1 = new("");
+                TableColumn aliasesColumn = new("Aliases");
+                TableColumn valuesColumn = new("Values");
+                TableColumn descriptionColumn = new("");
+
+                Table table = new()
+                {
+                    Expand = true
+                };
+                AddColumns();
+
+                // exception if add rows before columns
+                AddRequiredOptions();
+                AddOptionalOptions();
+
+                void AddColumns() => GetColumns().ForEach((col) => table.AddColumn(col));
+
+                List<string> GetColumns()
+                {
+                    var columns = new List<string> { "" };
+                    if (optionsLayout.HasAliases)
+                    {
+                        columns.Add("Aliases");
+                    }
+
+                    if (optionsLayout.HasDefaultsOrCompletions)
+                    {
+                        columns.Add("Values");
+                    }
+
+                    columns.Add("Description");
+                    return columns;
+                }
+
+                void AddOptionalOptions()
+                {
+                    if (optionsLayout.OptionalOptions.Count > 0)
+                    {
+                        if (optionsLayout.RequiredOptions.Count > 0)
+                        {
+                            _ = table.AddEmptyRow();
+                        }
+
+                        _ = table.AddRow("[bold]Optional[/]");
+
+                        AddRows(optionsLayout.OptionalOptions);
+                    }
+                }
+
+                void AddRequiredOptions()
+                {
+                    if (optionsLayout.RequiredOptions.Count > 0)
+                    {
+                        _ = table.AddRow("[bold]Required[/]");
+                        AddRows(optionsLayout.RequiredOptions);
+                    }
+                }
+
+                void AddRows(List<IOptionInfo> options)
+                {
+                    foreach (IOptionInfo option in options)
+                    {
+                        bool addedMainRow = false;
+                        if (option.DefaultValue != null)
+                        {
+                            AddMainRow($"Default : {option.DefaultValue}");
+                        }
+
+                        option.CompletionLines.ForEach(AddRow);
+                        if (!addedMainRow)
+                        {
+                            AddMainRow("");
+                        }
+
+                        void AddRow(string value)
+                        {
+                            if (addedMainRow)
+                            {
+                                _ = table.AddRow("", "", value, "");
+                            }
+                            else
+                            {
+                                AddMainRow(value);
+                            }
+                        }
+
+                        void AddMainRow(string value)
+                        {
+                            string aliases = string.Join(", ", option.Aliases);
+                            _ = table.AddRow(option.Name, aliases, value, option.Description ?? "");
+                            addedMainRow = true;
+                        }
+                    }
+                }
+
+                WriteHeader("Options");
+                ansiConsole.Write(table);
+            }
+
+            string GetHeader(string header) => $"[bold]{header}:[/]";
+
+            void WriteHeader(string header) => ansiConsole.MarkupLine(GetHeader(header));
+        }
+    }
+}

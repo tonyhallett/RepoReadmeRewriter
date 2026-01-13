@@ -1,31 +1,26 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Build.Framework;
-using NugetRepoReadme.IOWrapper;
 using NugetRepoReadme.MSBuild;
-using NugetRepoReadme.MSBuildHelpers;
-using NugetRepoReadme.Processing;
-using NugetRepoReadme.RemoveReplace.Settings;
-using NugetRepoReadme.Repo;
-using NugetRepoReadme.Rewriter;
-using InputOutputHelper = NugetRepoReadme.IOWrapper.IOHelper;
+using NugetRepoReadme.RemoveReplace;
+using Pure.DI;
+using RepoReadmeRewriter.Processing;
+using RepoReadmeRewriter.Runner;
 
 namespace NugetRepoReadme
 {
     public class ReadmeRewriterTask : Microsoft.Build.Utilities.Task
     {
-        internal const RewriteTagsOptions DefaultRewriteTagsOptions = Processing.RewriteTagsOptions.None;
+        internal const RewriteTagsOptions DefaultRewriteTagsOptions = RepoReadmeRewriter.Processing.RewriteTagsOptions.None;
 
         [Required]
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-        public string ProjectDirectoryPath { get; set; }
+        public string ProjectDirectoryPath { get; set; } = string.Empty;
 
         [Output]
-        public string OutputReadme { get; set; }
+        public string OutputReadme { get; set; } = string.Empty;
 
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-
-        // one of these required
+        // one of these urls is required
         public string? RepositoryUrl { get; set; }
 
         public string? ReadmeRepositoryUrl { get; set; }
@@ -55,59 +50,22 @@ namespace NugetRepoReadme
 
         public ITaskItem[]? RemoveReplaceWordsItems { get; set; }
 
-        internal IIOHelper IOHelper { get; set; } = InputOutputHelper.Instance;
+        [Dependency]
+        internal IMessageProvider? MessageProvider { get; set; }
 
-        internal IMessageProvider MessageProvider { get; set; } = MSBuild.MessageProvider.Instance;
+        [Dependency]
+        internal IRemoveReplaceSettingsProvider? RemoveReplaceSettingsProvider { get; set; }
 
-        internal IReadmeRewriter ReadmeRewriter { get; set; } = new ReadmeRewriter();
+        [Dependency]
+        internal IReadmeRewriterRunner? Runner { get; set; }
 
-        internal IRepoReadmeFilePathsProvider RepoReadmeFilePathsProvider { get; set; } = new RepoReadmeFilePathsProvider();
-
-        internal IRemoveReplaceSettingsProvider RemoveReplaceSettingsProvider { get; set; } = new RemoveReplaceSettingsProvider(
-            new MSBuildMetadataProvider(),
-            new RemoveCommentsIdentifiersParser(MSBuild.MessageProvider.Instance),
-            new RemovalOrReplacementProvider(InputOutputHelper.Instance, MSBuild.MessageProvider.Instance),
-            new RemoveReplaceWordsProvider(InputOutputHelper.Instance, MSBuild.MessageProvider.Instance),
-            MSBuild.MessageProvider.Instance);
+        public ReadmeRewriterTask() => _ = new Composition().Initialize(this);
 
         public override bool Execute()
         {
             LaunchDebuggerIfRequired();
-            string readmePath = IOHelper.CombinePaths(ProjectDirectoryPath, ReadmeRelativePath ?? "readme.md");
-            if (!IOHelper.FileExists(readmePath))
-            {
-                Log.LogError(MessageProvider.ReadmeFileDoesNotExist(readmePath));
-            }
-            else
-            {
-                RepoReadmeFilePaths? repoReadmeFilePaths = RepoReadmeFilePathsProvider.Provide(readmePath);
-                if (repoReadmeFilePaths == null)
-                {
-                    Log.LogError(MessageProvider.CannotFindGitRepository());
-                }
-                else
-                {
-                    TryRewrite(IOHelper.ReadAllText(readmePath), repoReadmeFilePaths);
-                }
-            }
 
-            DebugFileWriter.WriteToFile();
-            return !Log.HasLoggedErrors;
-        }
-
-        private void LaunchDebuggerIfRequired()
-        {
-            if (Environment.GetEnvironmentVariable("DebugReadmeRewriter") != "1" || Debugger.IsAttached)
-            {
-                return;
-            }
-
-            _ = Debugger.Launch();
-        }
-
-        private void TryRewrite(string readmeContents, RepoReadmeFilePaths repoReadmeFilePaths)
-        {
-            IRemoveReplaceSettingsResult removeReplaceSettingsResult = RemoveReplaceSettingsProvider.Provide(
+            IRemoveReplaceSettingsResult removeReplaceSettingsResult = RemoveReplaceSettingsProvider!.Provide(
                 RemoveReplaceItems,
                 RemoveReplaceWordsItems,
                 RemoveCommentIdentifiers);
@@ -121,59 +79,43 @@ namespace NugetRepoReadme
             }
             else
             {
-                Rewrite(readmeContents, repoReadmeFilePaths, removeReplaceSettingsResult.Settings);
+                ReadmeRewriterRunnerResult result = Runner!.Run(
+                    ProjectDirectoryPath,
+                    ReadmeRelativePath,
+                    GetRepositoryUrl(),
+                    GetRef(),
+                    GetRewriteTagsOptions(),
+                    removeReplaceSettingsResult.Settings);
+
+                foreach (string error in result.Errors)
+                {
+                    Log.LogError(error);
+                }
+
+                if (result.Success)
+                {
+                    OutputReadme = result.OutputReadme!;
+                }
             }
+
+            DebugFileWriter.WriteToFile();
+            return !Log.HasLoggedErrors;
+        }
+
+        [ExcludeFromCodeCoverage]
+        private void LaunchDebuggerIfRequired()
+        {
+            if (Environment.GetEnvironmentVariable("DebugReadmeRewriter") != "1" || Debugger.IsAttached)
+            {
+                return;
+            }
+
+            _ = Debugger.Launch();
         }
 
         private string? GetRepositoryUrl() => ReadmeRepositoryUrl ?? RepositoryUrl;
 
         private string GetRef() => RepositoryRef ?? RepositoryCommit ?? RepositoryBranch ?? "master";
-
-        private void Rewrite(
-            string readmeContents,
-            RepoReadmeFilePaths repoReadmeFilePaths,
-            RemoveReplaceSettings? removeReplaceSettings)
-        {
-            string? repositoryUrl = GetRepositoryUrl();
-            var readmeRelativeFileExists = new ReadmeRelativeFileExists(
-                repoReadmeFilePaths.RepoDirectoryPath,
-                repoReadmeFilePaths.ReadmeDirectoryPath);
-            ReadmeRewriterResult readmeRewriterResult = ReadmeRewriter.Rewrite(
-                GetRewriteTagsOptions(),
-                readmeContents,
-                repoReadmeFilePaths.RepoRelativeReadmeFilePath,
-                repositoryUrl,
-                GetRef(),
-                removeReplaceSettings,
-                readmeRelativeFileExists);
-
-            foreach (string unsupportedImageDomain in readmeRewriterResult.UnsupportedImageDomains)
-            {
-                Log.LogError(MessageProvider.UnsupportedImageDomain(unsupportedImageDomain));
-            }
-
-            foreach (string missingReadmeAsset in readmeRewriterResult.MissingReadmeAssets)
-            {
-                Log.LogError(MessageProvider.MissingReadmeAsset(missingReadmeAsset));
-            }
-
-            if (readmeRewriterResult.HasUnsupportedHTML)
-            {
-                Log.LogError(MessageProvider.ReadmeHasUnsupportedHTML());
-            }
-
-            if (readmeRewriterResult.UnsupportedRepo)
-            {
-                Log.LogError(MessageProvider.CouldNotParseRepositoryUrl(repositoryUrl));
-            }
-
-            if (Log.HasLoggedErrors)
-            {
-                return;
-            }
-
-            OutputReadme = readmeRewriterResult.RewrittenReadme!;
-        }
 
         private RewriteTagsOptions GetRewriteTagsOptions()
         {
@@ -186,7 +128,7 @@ namespace NugetRepoReadme
                 }
                 else
                 {
-                    Log.LogWarning(MessageProvider.CouldNotParseRewriteTagsOptionsUsingDefault(RewriteTagsOptions, DefaultRewriteTagsOptions));
+                    Log.LogWarning(MessageProvider!.CouldNotParseRewriteTagsOptionsUsingDefault(RewriteTagsOptions, DefaultRewriteTagsOptions));
                 }
             }
             else
@@ -194,18 +136,18 @@ namespace NugetRepoReadme
                 bool errorsOnHtml = false;
                 if (bool.TryParse(ErrorOnHtml, out bool errorOnHtml) && errorOnHtml)
                 {
-                    options = Processing.RewriteTagsOptions.ErrorOnHtml;
+                    options = RepoReadmeRewriter.Processing.RewriteTagsOptions.ErrorOnHtml;
                     errorsOnHtml = true;
                 }
 
                 if (!errorsOnHtml && bool.TryParse(RemoveHtml, out bool removeHtml) && removeHtml)
                 {
-                    options = Processing.RewriteTagsOptions.RemoveHtml;
+                    options = RepoReadmeRewriter.Processing.RewriteTagsOptions.RemoveHtml;
                 }
 
                 if (bool.TryParse(ExtractDetailsContentWithoutSummary, out bool extractDetailsContentWithoutSummary) && extractDetailsContentWithoutSummary)
                 {
-                    options |= Processing.RewriteTagsOptions.ExtractDetailsContentWithoutSummary;
+                    options |= RepoReadmeRewriter.Processing.RewriteTagsOptions.ExtractDetailsContentWithoutSummary;
                 }
             }
 

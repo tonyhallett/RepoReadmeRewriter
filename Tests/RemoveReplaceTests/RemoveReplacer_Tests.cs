@@ -1,6 +1,6 @@
 using Moq;
-using NugetRepoReadme.RemoveReplace;
-using NugetRepoReadme.RemoveReplace.Settings;
+using RepoReadmeRewriter.RemoveReplace;
+using RepoReadmeRewriter.RemoveReplace.Settings;
 
 namespace Tests.RemoveReplaceTests
 {

@@ -1,9 +1,10 @@
 ﻿using Microsoft.Build.Utilities;
 using Moq;
 using MSBuildTaskTestHelpers;
-using NugetRepoReadme.IOWrapper;
 using NugetRepoReadme.MSBuild;
-using NugetRepoReadme.RemoveReplace.Settings;
+using NugetRepoReadme.RemoveReplace;
+using RepoReadmeRewriter.IOWrapper;
+using RepoReadmeRewriter.RemoveReplace.Settings;
 using Tests.Utils;
 
 namespace Tests.RemoveReplaceTests

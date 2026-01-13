@@ -1,5 +1,6 @@
-using NugetRepoReadme.Processing;
-using NugetRepoReadme.Rewriter;
+using Moq;
+using RepoReadmeRewriter.Processing;
+using RepoReadmeRewriter.Rewriter;
 
 namespace Tests.ReadmeRewriterIntegrationTests
 {
@@ -10,6 +11,7 @@ namespace Tests.ReadmeRewriterIntegrationTests
         [TestCase(RewriteTagsOptions.None, false, false)]
         public void Should_Rewrite_Img_When_RewriteTagsOptions_RewriteImgTagsForSupportedDomains(RewriteTagsOptions rewriteTagsOptions, bool expectsRewrites, bool lowercaseTag)
         {
+            _ = MockImageDomainValidator.Setup(v => v.IsTrustedImageDomain(It.IsAny<string>())).Returns(true);
             string readmeContent = CreateImage("alttext", "https://github.com/user/repo/actions/workflows/workflowname.yaml/badge.svg", lowercaseTag);
             ReadmeRewriterResult result = RewriteUserRepoMainReadMe(readmeContent, rewriteTagsOptions);
 
@@ -41,6 +43,7 @@ namespace Tests.ReadmeRewriterIntegrationTests
         [Test]
         public void Should_Not_Rewrite_Imgs_For_Unsupported_Domains()
         {
+            _ = MockImageDomainValidator.Setup(v => v.IsTrustedImageDomain(It.IsAny<string>())).Returns(false);
             string unsupportedImage1 = CreateImage("altext", "https://unsupported.com/a.png");
             string unsupportedImage2 = CreateImage("altext", "https://unsupported2.com/a.png");
             string readmeContent = @$"

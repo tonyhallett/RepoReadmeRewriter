@@ -1,9 +1,10 @@
 ﻿using System;
+using RepoReadmeRewriter.Processing;
 
 namespace NugetRepoReadme.NugetValidation
 {
     // https://github.com/NuGet/NuGetGallery/blob/main/src/NuGetGallery/Services/ImageDomainValidator.cs
-    internal class NuGetImageDomainValidator : INuGetImageDomainValidator
+    internal class NuGetImageDomainValidator : IImageDomainValidator
     {
         private readonly INuGetTrustedImageDomains _trustedImageDomains;
         private readonly INuGetGitHubBadgeValidator _nugetGitHubBadgeValidator;
