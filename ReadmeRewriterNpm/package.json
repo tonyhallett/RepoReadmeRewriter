@@ -1,0 +1,49 @@
+{
+  "name": "reporeadmerewriter",
+  "version": "1.0.0",
+  "description": "tool that rewrites repo relative asset links ( Gitlab / Github ) to absolute. Can also remove / replace ",
+  "main": "index.js",
+  "scripts": {
+    "copy-cli": "tsx ./scripts/copy-cli.ts",
+    "build": "tsc -p tsconfig.json",
+    "prepare": "npm run build && npm run copy-cli",
+    "pretest:integration": "npm run prepare && npm pack",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "jest __tests__/rewriter",
+    "test:integration": "jest __tests__/integration.test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tonyhallett/RepoReadmeRewriter.git"
+  },
+  "keywords": [
+    "readme",
+    "GitHub",
+    "GitLab",
+    "relative",
+    "links",
+    "images"
+  ],
+  "author": "Tony Hallett",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tonyhallett/RepoReadmeRewriter/issues"
+  },
+  "homepage": "https://github.com/tonyhallett/RepoReadmeRewriter#readme",
+  "bin": "bin/rewriter.js",
+  "dependencies": {
+    "@types/node": "^25.0.8",
+    "adm-zip": "^0.5.16",
+    "hosted-git-info": "^9.0.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.7",
+    "@types/hosted-git-info": "^3.0.5",
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.4.6",
+    "tsx": "^4.21.0"
+  }
+}
