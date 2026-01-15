@@ -10,4 +10,4 @@ export interface RepoReadmeRewriterOptions {
   repoUrl?: string;
 }
 
-export const repoReadmeRewriterConfigKey = "repoReadmeRewriter";
+export const packageJsonOptionsConfigKey = "repoReadmeRewriter";

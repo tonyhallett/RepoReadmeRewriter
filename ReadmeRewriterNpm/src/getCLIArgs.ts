@@ -1,6 +1,6 @@
-import { getCLIArgsFromPackageJson } from "./getCLIArgsFromPackageJson";
 import { getHelpCLIArgs } from "./getHelpCLIArgs";
+import { getCLIArgsFromJson } from "./getCLIArgsFromJson";
 
 export function getCLIArgs(args: string[]): string[] {
-  return getHelpCLIArgs(args) ?? getCLIArgsFromPackageJson();
+  return getHelpCLIArgs(args) ?? getCLIArgsFromJson();
 }

@@ -11,8 +11,9 @@ import { spawnSync, SpawnSyncReturns } from "child_process";
 import pkg from "../package.json";
 import {
   RepoReadmeRewriterOptions,
-  repoReadmeRewriterConfigKey,
+  packageJsonOptionsConfigKey,
 } from "../src/RepoReadmeRewriterOptions";
+import { NoOptionsErrorMessage } from "../src/getCLIArgsFromJson";
 
 describe("RepoReadmeRewriter CLI integration", () => {
   const repoRoot = process.cwd();
@@ -25,7 +26,7 @@ describe("RepoReadmeRewriter CLI integration", () => {
     };
 
     if (options) {
-      packageJsonContent[repoReadmeRewriterConfigKey] = options;
+      packageJsonContent[packageJsonOptionsConfigKey] = options;
     }
 
     dependentDirectory = mkdtempSync(path.join(os.tmpdir(), "rrw-"));
@@ -70,7 +71,7 @@ describe("RepoReadmeRewriter CLI integration", () => {
     });
   }
 
-  it("installs from packed tarball and shows help with exit 0", () => {
+  it("shows help with exit 0", () => {
     const result = execute(undefined, undefined, ["--help"]);
 
     expect(result.status).toBe(0);
@@ -78,14 +79,12 @@ describe("RepoReadmeRewriter CLI integration", () => {
     expect(combined).toMatch(/Usage|help/i);
   });
 
-  it("errors when no config in package.json", () => {
+  it("errors when no options", () => {
     const result = execute();
     expect(result.status).toBe(1);
     const combined = (result.stdout || "") + (result.stderr || "");
     // debug info printed
-    expect(combined).toContain(
-      "No repoReadmeRewriter config found in package.json"
-    );
+    expect(combined).toContain(NoOptionsErrorMessage);
   });
 
   function writeDependentProectFile(contents: string, filename: string) {
@@ -117,7 +116,6 @@ describe("RepoReadmeRewriter CLI integration", () => {
       "Before [Title](https://github.com/tonyhallett/RepoReadmeRewriter/blob/master/.gitignore)."
     );
   });
-  // todo put in package.json and read from there
 
   afterEach(() => {
     if (dependentDirectory) {

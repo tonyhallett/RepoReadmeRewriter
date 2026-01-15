@@ -1,48 +1,39 @@
 import { runProcessArgs } from "../../src/runProcessArgs";
 import { getCLIArgs } from "../../src/getCLIArgs";
-import { getCLIDllPath } from "../../src/getCLIDllPath";
-import { spawnCLI } from "../../src/spawnCLI";
+import { repoRepoReadmeRewrite } from "../../src/repoRepoReadmeRewrite";
 
 jest.mock("../../src/getCLIArgs");
-jest.mock("../../src/getCLIDllPath");
-jest.mock("../../src/spawnCLI");
+jest.mock("../../src/repoRepoReadmeRewrite", () => ({
+  repoRepoReadmeRewrite: jest.fn(),
+}));
 
 describe("runProcessArgs", () => {
   const mockedGetCLIArgs = getCLIArgs as jest.MockedFunction<typeof getCLIArgs>;
-  const mockedGetCLIDllPath = getCLIDllPath as jest.MockedFunction<
-    typeof getCLIDllPath
+  const mockedRepoReadmeRewrite = repoRepoReadmeRewrite as jest.MockedFunction<
+    typeof repoRepoReadmeRewrite
   >;
-  const mockedSpawnCLI = spawnCLI as jest.MockedFunction<typeof spawnCLI>;
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("resolves with the exit code returned by spawnCLI", async () => {
+  it("returns the exit code from repoRepoReadmeRewrite", async () => {
     const processArgs = ["processarg"];
     const cliArgs = ["--repo-url", "https://example"];
     mockedGetCLIArgs.mockReturnValue(cliArgs);
-    mockedGetCLIDllPath.mockReturnValue("/path/to/cli.dll");
-    mockedSpawnCLI.mockImplementation((_dllPath, _cliArgs, resolve) => {
-      resolve(123);
-    });
+    mockedRepoReadmeRewrite.mockResolvedValue(123);
 
     const exitCode = await runProcessArgs(processArgs);
 
     expect(mockedGetCLIArgs).toHaveBeenCalledWith(processArgs);
-    expect(mockedSpawnCLI).toHaveBeenCalledWith(
-      "/path/to/cli.dll",
-      cliArgs,
-      expect.any(Function)
-    );
+    expect(mockedRepoReadmeRewrite).toHaveBeenCalledWith(cliArgs);
     expect(exitCode).toBe(123);
   });
 
-  it("logs the error and resolves with exit code 1 when getCLIArgs throws", async () => {
+  it("logs and returns 1 when getCLIArgs throws", async () => {
     mockedGetCLIArgs.mockImplementation(() => {
       throw new Error("CLI args failure");
     });
-
     const errorSpy = jest.spyOn(console, "error").mockImplementation(() => {
       return;
     });
@@ -50,7 +41,22 @@ describe("runProcessArgs", () => {
     const exitCode = await runProcessArgs(["--repo-url", "https://example"]);
 
     expect(errorSpy).toHaveBeenCalledWith("CLI args failure");
-    expect(mockedSpawnCLI).not.toHaveBeenCalled();
+    expect(mockedRepoReadmeRewrite).not.toHaveBeenCalled();
+    expect(exitCode).toBe(1);
+
+    errorSpy.mockRestore();
+  });
+
+  it("logs and returns 1 when repoRepoReadmeRewrite rejects", async () => {
+    mockedGetCLIArgs.mockReturnValue(["--repo-url", "https://example"]);
+    mockedRepoReadmeRewrite.mockRejectedValue(new Error("spawn failed"));
+    const errorSpy = jest.spyOn(console, "error").mockImplementation(() => {
+      return;
+    });
+
+    const exitCode = await runProcessArgs(["--repo-url", "https://example"]);
+
+    expect(errorSpy).toHaveBeenCalledWith("spawn failed");
     expect(exitCode).toBe(1);
 
     errorSpy.mockRestore();

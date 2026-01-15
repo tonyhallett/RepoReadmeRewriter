@@ -1,8 +1,16 @@
 import * as fs from "fs";
 import { findPackageJsonPath } from "./findPackageJsonPath";
 
-export function findPackageJson(): Record<string, unknown> {
+interface PackageJsonInfo {
+  content: Record<string, unknown>;
+  path: string;
+}
+
+export function findPackageJson(): PackageJsonInfo {
   const pkgPath = findPackageJsonPath();
   const pkgContent = fs.readFileSync(pkgPath, "utf-8");
-  return JSON.parse(pkgContent);
+  return {
+    content: JSON.parse(pkgContent) as Record<string, unknown>,
+    path: pkgPath,
+  };
 }
