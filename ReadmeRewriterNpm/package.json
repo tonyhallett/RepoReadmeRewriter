@@ -4,6 +4,10 @@
   "description": "tool that rewrites repo relative asset links ( Gitlab / Github ) to absolute. Can also remove / replace ",
   "main": "bin/index.js",
   "types": "bin/index.d.ts",
+  "files": [
+    "bin/",
+    "README.md"
+  ],
   "scripts": {
     "clean": "node -e \"require('fs').rmSync('bin', { recursive: true, force: true });\"",
     "copy-cli": "tsx ./scripts/copy-cli.ts",
