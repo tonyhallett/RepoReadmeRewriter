@@ -11,8 +11,9 @@
     "skipLibCheck": true,
 
     "noEmitOnError": true,
+    "declaration": true,
     "newLine": "lf",
     "resolveJsonModule": true
   },
-  "include": ["src/rewriter.ts"]
+  "include": ["src/**/*.ts"]
 }

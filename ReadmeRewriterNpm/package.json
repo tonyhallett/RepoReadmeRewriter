@@ -2,7 +2,8 @@
   "name": "reporeadmerewriter",
   "version": "1.0.0",
   "description": "tool that rewrites repo relative asset links ( Gitlab / Github ) to absolute. Can also remove / replace ",
-  "main": "index.js",
+  "main": "bin/index.js",
+  "types": "bin/index.d.ts",
   "scripts": {
     "clean": "node -e \"require('fs').rmSync('bin', { recursive: true, force: true });\"",
     "copy-cli": "tsx ./scripts/copy-cli.ts",
