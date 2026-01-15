@@ -12,7 +12,8 @@
     "clean": "node -e \"require('fs').rmSync('bin', { recursive: true, force: true });\"",
     "copy-cli": "tsx ./scripts/copy-cli.ts",
     "build": "npm run clean && tsc -p tsconfig.json",
-    "prepare": "npm run build && npm run copy-cli",
+    "set-bin-exec": "node ./scripts/set-bin-exec.js",
+    "prepare": "npm run build && npm run copy-cli && npm run set-bin-exec",
     "pretest:integration": "npm run prepare && npm pack",
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "jest __tests__/rewriter",
@@ -36,7 +37,9 @@
     "url": "https://github.com/tonyhallett/RepoReadmeRewriter/issues"
   },
   "homepage": "https://github.com/tonyhallett/RepoReadmeRewriter#readme",
-  "bin": "bin/rewriter.js",
+  "bin": {
+    "reporeadmerewriter": "bin/rewriter.js"
+  },
   "dependencies": {
     "@types/node": "^25.0.8",
     "adm-zip": "^0.5.16",
