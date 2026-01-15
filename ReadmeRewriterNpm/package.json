@@ -1,6 +1,6 @@
 {
   "name": "reporeadmerewriter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "tool that rewrites repo relative asset links ( Gitlab / Github ) to absolute. Can also remove / replace ",
   "main": "bin/index.js",
   "types": "bin/index.d.ts",
@@ -41,18 +41,17 @@
     "reporeadmerewriter": "bin/rewriter.js"
   },
   "dependencies": {
-    "@types/node": "^25.0.8",
-    "adm-zip": "^0.5.16",
-    "hosted-git-info": "^9.0.2",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "hosted-git-info": "^9.0.2"
   },
   "devDependencies": {
+    "adm-zip": "^0.5.16",
+    "@types/node": "^25.0.8",
     "@types/adm-zip": "^0.5.7",
     "@types/hosted-git-info": "^3.0.5",
     "@types/jest": "^29.5.14",
     "jest": "^29.7.0",
     "ts-jest": "^29.4.6",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }
